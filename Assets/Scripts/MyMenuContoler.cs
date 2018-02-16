@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using HoloToolkit.Unity;
+using HoloToolkit.Unity.SpatialMapping;
 
 public class MyMenuContoler :  Singleton<MyMenuContoler>
 {
@@ -11,13 +12,18 @@ public class MyMenuContoler :  Singleton<MyMenuContoler>
     private GameObject RobotMenu;
     private GameObject ChooseMenu;
 
+    private GameObject SelectedRobot;
+
     private Stack<GameObject> menuStack;
 
     public bool ChangePosOri;
+    private bool GridFlag;
+    bool isChangePositionManualy;
     // Use this for initialization
     void Start () {
-
+        GridFlag = false;
         ChangePosOri = false;
+        isChangePositionManualy = false;
 
         iiwa = GameObject.Find("IIWA");
         if (iiwa != null)
@@ -38,6 +44,8 @@ public class MyMenuContoler :  Singleton<MyMenuContoler>
 
         menuStack = new Stack<GameObject>();
         menuStack.Push(MainMenu);
+
+        //ChangeMenu(RobotMenu);
     }
 	
 	// Update is called once per frame
@@ -78,17 +86,80 @@ public class MyMenuContoler :  Singleton<MyMenuContoler>
 
     public void Back()
     {
+        if (SelectedRobot != null) { SelectedRobot = null; }
+
         menuStack.Pop().SetActive(false);
         menuStack.Peek().SetActive(true);
     }
 
     public void Move()
     {
-        
+        if (SelectedRobot != null)
+        {
+            SelectedRobot.SendMessage("Move");
+        }
     }
-    public void RobotMenuCall()
+    public void RobotMenuCall(GameObject robot)
     {
         ChangeMenu(RobotMenu);
 
+        SelectedRobot = robot;
+
+    }
+    public void ShowGrid()
+    {
+        GridFlag = !GridFlag;
+
+        if (SpatialMappingManager.Instance != null)
+        {
+            SpatialMappingManager.Instance.DrawVisualMeshes = GridFlag;
+            if (GridFlag)
+            {
+                SpatialMappingManager.Instance.StartObserver();
+            }
+            else
+            {
+                SpatialMappingManager.Instance.StopObserver();
+            }
+        } 
+
+    }
+
+    public void ChangePosition()
+    {
+        if (SelectedRobot != null)
+        {
+            SelectedRobot.SendMessage("AllowPlacing");
+        }
+    }
+
+    
+    public void ChangePositionManualy()
+    {
+        isChangePositionManualy = !isChangePositionManualy;
+        if (SelectedRobot != null)
+        {
+            if (isChangePositionManualy)
+            {
+                SelectedRobot.SendMessage("StartTranslation");
+                SelectedRobot.SendMessage("StartRotation");
+            }
+            else
+            {
+                SelectedRobot.SendMessage("StopTranslation");
+                SelectedRobot.SendMessage("StopRotation");
+            }
+                
+        }
+    }
+
+
+
+    public void AddPoint()
+    {
+        if (SelectedRobot != null)
+        {
+            SelectedRobot.SendMessage("CreatePoint");
+        }
     }
 }

@@ -1,0 +1,176 @@
+fileFormatVersion: 2
+guid: f89338abc88d7d143ada036e682cf4c2
+timeCreated: 1518552568
+licenseType: Free
+ModelImporter:
+  serializedVersion: 22
+  fileIDToRecycleName:
+    100000: //RootNode
+    100002: Camera
+    100004: Cone
+    100006: Cone.001
+    100008: Cone.002
+    100010: Cylinder
+    100012: Cylinder.001
+    100014: Cylinder.002
+    100016: Lamp
+    100018: node_id13
+    100020: node_id13.001
+    100022: node_id13.002
+    100024: node_id13.003
+    100026: node_id13.004
+    100028: node_id13.005
+    100030: node_id13.006
+    100032: Sphere
+    400000: //RootNode
+    400002: Camera
+    400004: Cone
+    400006: Cone.001
+    400008: Cone.002
+    400010: Cylinder
+    400012: Cylinder.001
+    400014: Cylinder.002
+    400016: Lamp
+    400018: node_id13
+    400020: node_id13.001
+    400022: node_id13.002
+    400024: node_id13.003
+    400026: node_id13.004
+    400028: node_id13.005
+    400030: node_id13.006
+    400032: Sphere
+    2000000: Camera
+    2100000: Material_9
+    2100002: Material_10
+    2100004: Material_5
+    2100006: Material_6
+    2100008: Material_8
+    2100010: Material_11
+    2100012: Material_7
+    2100014: Material.002
+    2100016: Material.006
+    2100018: Material.001
+    2100020: Material
+    2300000: Cone
+    2300002: Cone.001
+    2300004: Cone.002
+    2300006: Cylinder
+    2300008: Cylinder.001
+    2300010: Cylinder.002
+    2300012: node_id13
+    2300014: node_id13.001
+    2300016: node_id13.002
+    2300018: node_id13.003
+    2300020: node_id13.004
+    2300022: node_id13.005
+    2300024: node_id13.006
+    2300026: Sphere
+    3300000: Cone
+    3300002: Cone.001
+    3300004: Cone.002
+    3300006: Cylinder
+    3300008: Cylinder.001
+    3300010: Cylinder.002
+    3300012: node_id13
+    3300014: node_id13.001
+    3300016: node_id13.002
+    3300018: node_id13.003
+    3300020: node_id13.004
+    3300022: node_id13.005
+    3300024: node_id13.006
+    3300026: Sphere
+    4300000: node_id13
+    4300002: node_id13.006
+    4300004: node_id13.005
+    4300006: node_id13.004
+    4300008: node_id13.003
+    4300010: node_id13.002
+    4300012: node_id13.001
+    4300014: Cone.002
+    4300016: Cone.001
+    4300018: Cone
+    4300020: Cylinder.002
+    4300022: Cylinder.001
+    4300024: Cylinder
+    4300026: Sphere
+    10800000: Lamp
+  externalObjects: {}
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 0
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

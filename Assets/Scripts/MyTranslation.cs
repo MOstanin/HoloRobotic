@@ -15,24 +15,30 @@ public class MyTranslation : MonoBehaviour, INavigationHandler
     private float translationFactorZ = 0.0f;
 
     private Vector3 navigationDelta = Vector3.zero;
-
     
-    public GameObject Robot;
 
     public bool flag;
 
     void Start()
     {
-        //robot = GameObject.Find("IIWA1");
-        //flag = true;
+        flag = false;
     }
 
     void Update()
     {
-        if (Robot != null)
+        if (flag)
         {
             PerformRotation();
         }
+    }
+
+    public void StartTranslation()
+    {
+        flag = true;
+    }
+    public void StopTranslation()
+    {
+        flag = false;
     }
 
     private void PerformRotation()
@@ -47,7 +53,7 @@ public class MyTranslation : MonoBehaviour, INavigationHandler
         translationFactorZ = navigationDelta.z * TranslationSensitivity;
 
 
-        Robot.transform.Translate(new Vector3(translationFactorX, translationFactorY, translationFactorZ),Space.World);
+        transform.Translate(new Vector3(translationFactorX, translationFactorY, translationFactorZ),Space.World);
     }
 
     public void OnNavigationCanceled(NavigationEventData eventData)

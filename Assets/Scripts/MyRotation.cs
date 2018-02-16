@@ -10,7 +10,7 @@ public class MyRotation : MonoBehaviour, INavigationHandler
 
     private float rotationFactor = 0.0f;
     private Vector3 navigationDelta = Vector3.zero;
-    public GameObject Robot;
+ 
 
     public bool flag;
 
@@ -19,15 +19,25 @@ public class MyRotation : MonoBehaviour, INavigationHandler
     void Start()
     {
         //Robot = GameObject.Find("IIWA1");
+        flag = false;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Robot != null)
+        if (flag)
         {
             PerformRotation();
         }
+    }
+
+    public void StartRotation()
+    {
+        flag = true;
+    }
+    public void StopRotation()
+    {
+        flag = false;
     }
 
     private void PerformRotation()
@@ -42,7 +52,7 @@ public class MyRotation : MonoBehaviour, INavigationHandler
         rotationFactor = navigationDelta.x * RotationSensitivity;
 
         // Rotate object along the Y axis using.
-        Robot.transform.Rotate(new Vector3(0, -1 * rotationFactor, 0));
+        transform.Rotate(new Vector3(0, -1 * rotationFactor, 0));
     }
 
     public void OnNavigationCanceled(NavigationEventData eventData)
