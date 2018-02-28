@@ -111,7 +111,9 @@ public class AgilusControl : RobotControll{
     public override float[] InversKin(Matrix<float> Tgoal)
     {
         //Tgoal = Tgoal * MathOperations.MatrixRz4(Mathf.PI);
+
         Matrix<float> T0 = Tgoal * MathOperations.MatrixTx4(80).Inverse();
+
 
         float q1 = Mathf.Atan2(T0[1, 3], T0[0, 3]);
         float a = Mathf.Sqrt(T0[1, 3] * T0[1, 3] + T0[0, 3] * T0[0, 3])-25;
@@ -129,14 +131,26 @@ public class AgilusControl : RobotControll{
 
         
         float q4, q5, q6;
-        if (Mathf.Abs(T456[0, 0]) != 1) {
-            q4 = Mathf.Atan2(T456[1, 0], -T456[2, 0]);
-            q6 = Mathf.Atan2(T456[0, 1], T456[0, 2]);
-            if (T456[0, 2] != 0) {
-                q5 = Mathf.Atan2(T456[0, 2], T456[0, 0] * Mathf.Cos(q6));
+
+        float nx = MathOperations.MyRround(T456[0, 0]);
+        float ny = MathOperations.MyRround(T456[1, 0]);
+        float nz = MathOperations.MyRround(T456[2, 0]);
+
+        float ax = MathOperations.MyRround(T456[0, 2]);
+        float sx = MathOperations.MyRround(T456[0, 1]);
+
+        if (nx != 1) {
+
+            q4 = Mathf.Atan2(ny, -nz);
+            q6 = Mathf.Atan2(sx, ax);
+            if (ax != 0)
+            {
+                q5 = Mathf.Atan2(ax, nx * Mathf.Abs( Mathf.Cos(q6)));
             }
             else
-                q5 = Mathf.Atan2(T456[0, 2], T456[0, 0] * Mathf.Sin(q6));
+            {
+                q5 = Mathf.Atan2(sx, nx * Mathf.Abs(Mathf.Sin(q6)));
+            }
         }
         else
         {
@@ -145,7 +159,8 @@ public class AgilusControl : RobotControll{
             q6 = Mathf.Atan2(T456[2, 1], T456[1, 1]);
         }
 
-        return new float[] { q1, q2, q3, q4, q5, q6 };
+        q = new float[] { q1, q2, q3, q4, q5 , q6 };
+        return q;
     }
 
     public override float[] ReadState()
@@ -180,5 +195,70 @@ public class AgilusControl : RobotControll{
     {
         q = q0;
         return InversKin(Tgoal);
+    }
+
+    public override Matrix<float> CreareMatrixT(Vector3 pos, Vector3 ori)
+    {
+
+        if (ori.x > Mathf.PI)
+        {
+            ori.x = ori.x - Mathf.PI * 2;
+        }
+        if (ori.x < -Mathf.PI)
+        {
+            ori.x = ori.x + Mathf.PI * 2;
+        }
+        if (ori.y > Mathf.PI)
+        {
+            ori.y = ori.y - Mathf.PI * 2;
+        }
+        if (ori.y < -Mathf.PI)
+        {
+            ori.y = ori.y + Mathf.PI * 2;
+        }
+        if (ori.z > Mathf.PI)
+        {
+            ori.z = ori.z - Mathf.PI * 2;
+        }
+        if (ori.z < -Mathf.PI)
+        {
+            ori.z = ori.z + Mathf.PI * 2;
+        }
+
+
+        float p = -ori.x;
+        float o = -ori.z;
+        float s = -ori.y - Mathf.PI;
+
+        Matrix<float> Rz = Matrix<float>.Build.DenseOfArray(new float[,]
+            {
+                {Mathf.Cos(s), -Mathf.Sin(s), 0},
+                {Mathf.Sin(s), Mathf.Cos(s),  0},
+                {0,            0,             1}
+            });
+        Matrix<float> Ry = Matrix<float>.Build.DenseOfArray(new float[,]
+            {
+                {Mathf.Cos(o),  0, Mathf.Sin(o)},
+                {0,             1, 0},
+                {-Mathf.Sin(o), 0, Mathf.Cos(o)}
+            });
+        Matrix<float> Rx = Matrix<float>.Build.DenseOfArray(new float[,]
+            {
+                {1, 0,              0},
+                {0, Mathf.Cos(p),  -Mathf.Sin(p)},
+                {0, Mathf.Sin(p),  Mathf.Cos(p)}
+            });
+
+        Matrix<float> R = Rz * Rx * Ry;
+
+        Matrix<float> T = Matrix<float>.Build.DenseOfArray(new float[,]
+            {
+                {R[0,0], R[0,1], R[0,2], -pos.x},
+                {R[1,0], R[1,1], R[1,2], -pos.z},
+                {R[2,0], R[2,1], R[2,2], pos.y},
+                {0,      0,      0,      1}
+            });
+
+        return T;
     }
 }

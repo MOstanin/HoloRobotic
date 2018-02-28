@@ -100,7 +100,7 @@ public class MathOperations {
             });
     }
 
-    private static float MyRround(float n)
+    public static float MyRround(float n)
     {
         return (Mathf.Round(n * 1000)) / 1000;
 
@@ -158,5 +158,44 @@ public class MathOperations {
 
         return err;
     }
+
+    public static Matrix<float> MatrixUnityToRobot()
+    {
+        return MatrixRobotToUnity().Transpose();
+    }
+
+    public static Matrix<float> MatrixRobotToUnity()
+    {
+        return Matrix<float>.Build.DenseOfArray(new float[,]
+            {
+                { -1, 0,  0,0 },
+                { 0,  0,  1,0 }, 
+                { 0, -1,  0,0 },
+                { 0,  0,  0,1 }
+            });
+    }
+
+    public static Matrix<float> LeftToRight(Matrix<float> Tleft)
+    {
+        Matrix<float> Tright = Tleft.Clone();
+
+        Tright[2, 3] = Tleft[1, 3];
+        Tright[1, 3] = Tleft[2, 3];
+
+        //Tright[row, column]
+
+        Tright[1, 0] = Tleft[2, 0];
+        Tright[2, 0] = Tleft[1, 0];
+        Tright[0, 1] = Tleft[0, 2];
+        Tright[1, 1] = Tleft[2, 2];
+        Tright[2, 1] = Tleft[1, 2];
+        Tright[0, 2] = Tleft[0, 1];
+        Tright[1, 2] = Tleft[2, 1];
+        Tright[2, 2] = Tleft[1, 1];
+               
+        return Tright;
+    }
+
+
 
 }

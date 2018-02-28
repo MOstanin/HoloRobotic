@@ -14,16 +14,21 @@ public class MyMenuContoler :  Singleton<MyMenuContoler>
 
     private GameObject SelectedRobot;
 
+    public GameObject infoTable;
+    private GameObject currentInfoTable;
+
     private Stack<GameObject> menuStack;
 
     public bool ChangePosOri;
     private bool GridFlag;
     bool isChangePositionManualy;
+    bool firstCallInfo;
     // Use this for initialization
     void Start () {
         GridFlag = false;
         ChangePosOri = false;
         isChangePositionManualy = false;
+        firstCallInfo = true;
 
         iiwa = GameObject.Find("IIWA");
         if (iiwa != null)
@@ -99,6 +104,7 @@ public class MyMenuContoler :  Singleton<MyMenuContoler>
             SelectedRobot.SendMessage("Move");
         }
     }
+
     public void RobotMenuCall(GameObject robot)
     {
         ChangeMenu(RobotMenu);
@@ -106,6 +112,7 @@ public class MyMenuContoler :  Singleton<MyMenuContoler>
         SelectedRobot = robot;
 
     }
+
     public void ShowGrid()
     {
         GridFlag = !GridFlag;
@@ -133,7 +140,6 @@ public class MyMenuContoler :  Singleton<MyMenuContoler>
         }
     }
 
-    
     public void ChangePositionManualy()
     {
         isChangePositionManualy = !isChangePositionManualy;
@@ -152,9 +158,7 @@ public class MyMenuContoler :  Singleton<MyMenuContoler>
                 
         }
     }
-
-
-
+    
     public void AddPoint()
     {
         if (SelectedRobot != null)
@@ -162,4 +166,61 @@ public class MyMenuContoler :  Singleton<MyMenuContoler>
             SelectedRobot.SendMessage("CreatePoint");
         }
     }
+
+   
+    public void ShowInfoRobot()
+    {
+        if (firstCallInfo)
+        {
+            currentInfoTable = Instantiate(infoTable, new Vector3(0, 0, 0), Quaternion.Euler(new Vector3(0, 0, 0)), gameObject.transform);
+
+            currentInfoTable.transform.localPosition = new Vector3(0.6f, -0.03f, -0.05f);
+            currentInfoTable.transform.localEulerAngles = new Vector3(0, 25, -15);
+
+
+            GameObject agilusInfo = currentInfoTable.transform.GetChild(0).gameObject;
+            GameObject iiwaInfo = currentInfoTable.transform.GetChild(1).gameObject;
+            GameObject cartInfo = currentInfoTable.transform.GetChild(2).gameObject;
+
+            cartInfo.SetActive(false);
+
+            if (SelectedRobot.tag == "agilus")
+            {
+                iiwaInfo.SetActive(false);
+            }
+            else if (SelectedRobot.tag == "iiwa")
+            {
+                agilusInfo.SetActive(false);
+            }
+            firstCallInfo = false;
+        }
+        else
+        {
+            firstCallInfo = true;
+            Destroy(currentInfoTable);
+        }
+    }
+
+    public float[] RobotState()
+    {
+        if (SelectedRobot != null)
+        {
+            RobotControll robot = SelectedRobot.GetComponent<RobotControll>();
+            return robot.ReadState();
+        }
+        else
+        {
+            // better send error
+            return null;
+        }
+    }
+
+    public void SendStateToRobot(float[] q)
+    {
+        if (SelectedRobot != null) {
+            RobotControll robot = SelectedRobot.GetComponent<RobotControll>();
+            robot.SendState(q);
+        }
+    }
+
 }

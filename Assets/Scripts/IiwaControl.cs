@@ -45,7 +45,7 @@ public class IiwaControl : RobotControll {
         Matrix<float> A6 = MathOperations.CalcMatrixDH(q[5], 0, 0, -Mathf.PI / 2);
         Matrix<float> A7 = MathOperations.CalcMatrixDH(q[6], 130, 0, 0);
 
-        Matrix<float> T7 = A1 * A2 * A3 * A4 * A5 * A6 * A7;
+        Matrix<float> T7 = A0*A1 * A2 * A3 * A4 * A5 * A6 * A7;
 
         return T7;
     }
@@ -58,8 +58,12 @@ public class IiwaControl : RobotControll {
 
     public override float[] InversKin(Matrix<float> Tgoal)
     {
-        Tgoal[0, 3] = -Tgoal[0, 3];
-        float diff_r=0;
+        q = new float[] { 0, 0, 0, 0, 0, 0, 0 };
+        //Tgoal[1, 3] = -Tgoal[1, 3];
+        //Tgoal[0, 3] = -Tgoal[0, 3];
+
+        //Tgoal = Tgoal * MathOperations.CalcMatrixRx(0) * MathOperations.CalcMatrixRy(0) * MathOperations.CalcMatrixRz();
+        float diff_r =0;
         float diif_o =0;
         int c = 0;
         do
@@ -74,7 +78,7 @@ public class IiwaControl : RobotControll {
             Vector<float> del_q = Vector<float>.Build.DenseOfArray(new float[] { 0, 0, 0, 0, 0, 0, 0 });
             float[] del_q2 = new float[] { 0, 0, 0, 0, 0, 0, 0 };
 
-            if (diff_r > 1 || diif_o > 0.02F)
+            if (diff_r > 1 || diif_o > 0.1F)
             {
                 del_q2 = MoveSNS(q, error);
 
@@ -92,7 +96,7 @@ public class IiwaControl : RobotControll {
                 c++;
             }
             
-        } while ((diff_r > 1 || diif_o > 0.02F));
+        } while ((diff_r > 1 || diif_o > 0.1F));
 
         return q;
     }
@@ -241,7 +245,7 @@ public class IiwaControl : RobotControll {
 
     private Matrix<float> IIWAjacobian(float[] q)
     {
-        
+        Matrix<float> A0 = MathOperations.CalcMatrixDH(Mathf.PI, 0, 0, 0);
         Matrix<float> A1 = MathOperations.CalcMatrixDH(q[0], 360, 0, Mathf.PI / 2);
         Matrix<float> A2 = MathOperations.CalcMatrixDH(q[1], 0, 0, -Mathf.PI / 2);
         Matrix<float> A3 = MathOperations.CalcMatrixDH(q[2], 420, 0, Mathf.PI / 2);
@@ -250,13 +254,13 @@ public class IiwaControl : RobotControll {
         Matrix<float> A6 = MathOperations.CalcMatrixDH(q[5], 0, 0, -Mathf.PI / 2);
         Matrix<float> A7 = MathOperations.CalcMatrixDH(q[6], 130, 0, 0);
 
-        Matrix<float> T1 = A1;
-        Matrix<float> T2 = A1.Multiply(A2);
-        Matrix<float> T3 = A1.Multiply(A2.Multiply(A3));
-        Matrix<float> T4 = A1.Multiply(A2.Multiply(A3.Multiply(A4)));
-        Matrix<float> T5 = A1.Multiply(A2.Multiply(A3.Multiply(A4.Multiply(A5))));
-        Matrix<float> T6 = A1.Multiply(A2.Multiply(A3.Multiply(A4.Multiply(A5.Multiply(A6)))));
-        Matrix<float> T7 = A1.Multiply(A2.Multiply(A3.Multiply(A4.Multiply(A5.Multiply(A6.Multiply(A7))))));
+        Matrix<float> T1 = A0*A1;
+        Matrix<float> T2 = T1 * A2;
+        Matrix<float> T3 = T2 * A3;
+        Matrix<float> T4 = T3 * A4;
+        Matrix<float> T5 = T4 * A5;
+        Matrix<float> T6 = T5 * A6;
+        Matrix<float> T7 = T6 * A7;
 
         Vector3 z0 = new Vector3(0, 0, 1);
         Vector3 z1 = new Vector3(T1[0, 2], T1[1, 2], T1[2, 2]);
@@ -366,4 +370,68 @@ public class IiwaControl : RobotControll {
         return err;
     }
 
+    public override Matrix<float> CreareMatrixT(Vector3 pos, Vector3 ori)
+    {
+
+        if (ori.x > Mathf.PI)
+        {
+            ori.x = ori.x - Mathf.PI * 2;
+        }
+        if (ori.x < -Mathf.PI)
+        {
+            ori.x = ori.x + Mathf.PI * 2;
+        }
+        if (ori.y > Mathf.PI)
+        {
+            ori.y = ori.y - Mathf.PI * 2;
+        }
+        if (ori.y < -Mathf.PI)
+        {
+            ori.y = ori.y + Mathf.PI * 2;
+        }
+        if (ori.z > Mathf.PI)
+        {
+            ori.z = ori.z - Mathf.PI * 2;
+        }
+        if (ori.z < -Mathf.PI)
+        {
+            ori.z = ori.z + Mathf.PI * 2;
+        }
+
+
+        float p = ori.x;
+        float o = -ori.z;
+        float s = ori.y - Mathf.PI;
+
+        Matrix<float> Rz = Matrix<float>.Build.DenseOfArray(new float[,]
+            {
+                {Mathf.Cos(s), -Mathf.Sin(s), 0},
+                {Mathf.Sin(s), Mathf.Cos(s),  0},
+                {0,            0,             1}
+            });
+        Matrix<float> Ry = Matrix<float>.Build.DenseOfArray(new float[,]
+            {
+                {Mathf.Cos(o),  0, Mathf.Sin(o)},
+                {0,             1, 0},
+                {-Mathf.Sin(o), 0, Mathf.Cos(o)}
+            });
+        Matrix<float> Rx = Matrix<float>.Build.DenseOfArray(new float[,]
+            {
+                {1, 0,              0},
+                {0, Mathf.Cos(p),  -Mathf.Sin(p)},
+                {0, Mathf.Sin(p),  Mathf.Cos(p)}
+            });
+
+        Matrix<float> R = Rz.Multiply(Ry.Multiply(Rx));
+
+        Matrix<float> T = Matrix<float>.Build.DenseOfArray(new float[,]
+            {
+                {R[0,0], R[0,1], R[0,2], -pos.x},
+                {R[1,0], R[1,1], R[1,2], pos.z},
+                {R[2,0], R[2,1], R[2,2], pos.y},
+                {0,      0,      0,      1}
+            });
+
+        return T;
+    }
 }
