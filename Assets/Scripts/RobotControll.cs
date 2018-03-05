@@ -10,8 +10,11 @@ public abstract class RobotControll : MonoBehaviour, IInputClickHandler, IRobot 
 
     public GameObject ball;
 
-
+    //q is goal state
     protected float[] q;
+    protected float[] current_q;
+
+    private float speed = 0.4f;
 
     public void OnInputClicked(InputClickedEventData eventData)
     {
@@ -22,12 +25,58 @@ public abstract class RobotControll : MonoBehaviour, IInputClickHandler, IRobot 
     protected virtual void Start()
     {
         q = ReadState();
+        current_q = (float[]) q.Clone();
     }
 
     protected virtual void Update()
     {
+        if (!QisEquale())
+        {
+            RobotMoving();
+        }
+    }
+
+    protected bool QisEquale()
+    {
+        for (int i = 0; i < q.Length; i++)
+        {
+            if (q[i]!= current_q[i]) { return false; }
+        }
+        return true;
+    }
+
+    protected void RobotMoving()
+    {
+        float[] del_q = new float[q.Length];
+        for (int i = 0; i < q.Length; i++)
+        {
+            del_q[i] = q[i] - current_q[i];
+        }
+
+        float maxDel = Mathf.Max(del_q);
+        float minDel = Mathf.Min(del_q);
+
+        float s = Mathf.Max(Mathf.Abs(maxDel), Mathf.Abs(minDel));
+
+        if (s > speed * Time.deltaTime)
+        {
+            for (int i = 0; i < q.Length; i++)
+            {
+                current_q[i] = current_q[i] + speed * Time.deltaTime * del_q[i] / s;
+            }
+        }
+        else
+        {
+            for (int i = 0; i < q.Length; i++)
+            {
+                current_q[i] = current_q[i] + del_q[i];
+            }
+        }
+        SendState(current_q);
 
     }
+
+
 
     public void CreatePoint()
     {
@@ -66,33 +115,13 @@ public abstract class RobotControll : MonoBehaviour, IInputClickHandler, IRobot 
     {
         Vector3 pos = ball.transform.localPosition * 1000;
         Vector3 ori = ball.transform.localEulerAngles * Mathf.PI / 180;
+        
+        //Matrix<float> Tgoal = CreareMatrixT(pos, ori);
+        //Debug.Log(Tgoal.ToString());
 
-        //Matrix<float> Tgoal = MathOperations.CalcMatrixT(-pos.x, -pos.z, pos.y, -ori.y + Mathf.PI, -ori.z, -ori.x);
-
-        //Debug.Log(ball.transform.localToWorldMatrix.ToString());
-
-        Matrix<float> Tgoal = CreareMatrixT(pos, ori);
-        Debug.Log(Tgoal.ToString());
-
-        SendState(InversKin(pos,ori));
+        q = InversKin(pos,ori);
 
         //Debug.Log(ForwardKin(InversKin(Tgoal)));
-
-    }
-    
-
-
-    public void MoveLink(int i, float angle)
-    {
-
-        if (q !=  null) {
-            q[i] = q[i] + angle;
-            SendState(q);
-        }
-    }
-    public void MoveLink(string link)
-    {
-        if (link != null) { MoveLink(int.Parse(link), Mathf.PI / 20); }
     }
 
 }

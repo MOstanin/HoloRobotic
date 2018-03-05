@@ -34,10 +34,9 @@ public class AgilusControl : RobotControll{
 
     protected override void Update()
     {
-        
+        base.Update();
     }
-
-
+    
     public override Matrix<float> ForwardKin(float[] q)
     {
 
@@ -143,13 +142,13 @@ public class AgilusControl : RobotControll{
 
             q4 = Mathf.Atan2(ny, -nz);
             q6 = Mathf.Atan2(sx, ax);
-            if ( Mathf.Abs(Mathf.Sin(q6)) > 0.000001f)
+            if ( Mathf.Abs(Mathf.Cos(q6)) > 0.00001f)
             {
-                q5 = Mathf.Atan2(ax / Mathf.Sin(q6), nx);
+                q5 = Mathf.Atan2(ax / Mathf.Cos(q6), nx);
             }
             else
             {
-                q5 = Mathf.Atan2(sx / Mathf.Cos(q6), nx);
+                q5 = Mathf.Atan2(sx / Mathf.Sin(q6), nx);
             }
         }
         else
@@ -160,6 +159,13 @@ public class AgilusControl : RobotControll{
         }
 
         q = new float[] { q1, q2, q3, q4, q5 , q6 };
+
+        foreach (float qc in q){
+            if (float.IsNaN(qc)) { return new float[] { 0, 0, 0, 0, 0, 0 }; }
+        }
+
+
+        Debug.Log("Agilus IK:" + q.ToString());
         return q;
     }
 

@@ -45,7 +45,7 @@ public class IiwaControl : RobotControll {
         Matrix<float> A6 = MathOperations.CalcMatrixDH(q[5], 0, 0, -Mathf.PI / 2);
         Matrix<float> A7 = MathOperations.CalcMatrixDH(q[6], 130, 0, 0);
 
-        Matrix<float> T7 = A0*A1 * A2 * A3 * A4 * A5 * A6 * A7;
+        Matrix<float> T7 = A1 * A2 * A3 * A4 * A5 * A6 * A7;
 
         return T7;
     }
@@ -63,8 +63,8 @@ public class IiwaControl : RobotControll {
         //Tgoal[0, 3] = -Tgoal[0, 3];
 
         //Tgoal = Tgoal * MathOperations.CalcMatrixRx(0) * MathOperations.CalcMatrixRy(0) * MathOperations.CalcMatrixRz();
-        float diff_r =0;
-        float diif_o =0;
+        float diff_r = 0;
+        float diif_o = 0;
         int c = 0;
         do
         {
@@ -89,21 +89,26 @@ public class IiwaControl : RobotControll {
             }
             if (c > 1000)
             {
-                break;
+                return new float[] { 0, 0, 0, 0, 0, 0 };
+
             }
             else
             {
                 c++;
             }
-            
+
         } while ((diff_r > 1 || diif_o > 0.1F));
 
+
+        //Debug.Log("IIWA IK:" + q.ToString());
         return q;
+
     }
+
     private float[] MoveSNS(float[] q_current, float[] error)
     {
 
-        float k = 0.01F;
+        float k = 0.1f;
         float[] speed = new float[] { 85 * k, 85 * k, 100 * k, 75 * k, 130 * k, 135 * k, 135 * k };
         float[] Qmax = new float[] { 170, 130, 170, 130, 170, 130, 175 };
         float[] Qmin = new float[] { -170, -130, -170, -130, -170, -130, -175 };
@@ -254,7 +259,7 @@ public class IiwaControl : RobotControll {
         Matrix<float> A6 = MathOperations.CalcMatrixDH(q[5], 0, 0, -Mathf.PI / 2);
         Matrix<float> A7 = MathOperations.CalcMatrixDH(q[6], 130, 0, 0);
 
-        Matrix<float> T1 = A0*A1;
+        Matrix<float> T1 = A1;
         Matrix<float> T2 = T1 * A2;
         Matrix<float> T3 = T2 * A3;
         Matrix<float> T4 = T3 * A4;
@@ -288,8 +293,7 @@ public class IiwaControl : RobotControll {
             {z0.z, z1.z, z2.z, z3.z, z4.z, z5.z, z6.z}
         });
     }
-
-
+    
     public override float[] ReadState()
     {
         float[] qr = new float[7];
@@ -363,9 +367,9 @@ public class IiwaControl : RobotControll {
         float d3 = t1[2] - t2[2];
 
 
-        err[3] = (R[0, 0] * d2 + R[0, 1] * d1 + R[0, 2] * d3) * 2;
-        err[4] = (R[1, 0] * d2 + R[1, 1] * d1 + R[1, 2] * d3) * 2;
-        err[5] = (R[2, 0] * d2 + R[2, 1] * d1 + R[2, 2] * d3) * 2;
+        err[3] = (R[0, 0] * d2 + R[0, 1] * d1 + R[0, 2] * d3);
+        err[4] = (R[1, 0] * d2 + R[1, 1] * d1 + R[1, 2] * d3);
+        err[5] = (R[2, 0] * d2 + R[2, 1] * d1 + R[2, 2] * d3);
 
         return err;
     }
@@ -399,8 +403,8 @@ public class IiwaControl : RobotControll {
         }
 
 
-        float p = ori.x;
-        float o = -ori.z;
+        float p = -ori.x;
+        float o = ori.z;
         float s = ori.y - Mathf.PI;
 
         Matrix<float> Rz = Matrix<float>.Build.DenseOfArray(new float[,]
@@ -426,8 +430,8 @@ public class IiwaControl : RobotControll {
 
         Matrix<float> T = Matrix<float>.Build.DenseOfArray(new float[,]
             {
-                {R[0,0], R[0,1], R[0,2], -pos.x},
-                {R[1,0], R[1,1], R[1,2], pos.z},
+                {R[0,0], R[0,1], R[0,2], pos.x},
+                {R[1,0], R[1,1], R[1,2], -pos.z},
                 {R[2,0], R[2,1], R[2,2], pos.y},
                 {0,      0,      0,      1}
             });
