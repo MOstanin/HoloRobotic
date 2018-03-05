@@ -143,13 +143,13 @@ public class AgilusControl : RobotControll{
 
             q4 = Mathf.Atan2(ny, -nz);
             q6 = Mathf.Atan2(sx, ax);
-            if (ax != 0)
+            if ( Mathf.Abs(Mathf.Sin(q6)) > 0.000001f)
             {
-                q5 = Mathf.Atan2(ax, nx * Mathf.Abs( Mathf.Cos(q6)));
+                q5 = Mathf.Atan2(ax / Mathf.Sin(q6), nx);
             }
             else
             {
-                q5 = Mathf.Atan2(sx, nx * Mathf.Abs(Mathf.Sin(q6)));
+                q5 = Mathf.Atan2(sx / Mathf.Cos(q6), nx);
             }
         }
         else
