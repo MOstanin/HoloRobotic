@@ -11,6 +11,7 @@ public class MyMenuContoler :  Singleton<MyMenuContoler>
     private GameObject MainMenu;
     private GameObject RobotMenu;
     private GameObject ChooseMenu;
+    private GameObject TrajectoryMenu;
 
     private GameObject SelectedRobot;
 
@@ -43,9 +44,11 @@ public class MyMenuContoler :  Singleton<MyMenuContoler>
         MainMenu = GameObject.Find("MainMenu");
         RobotMenu = GameObject.Find("MenuRobot");
         ChooseMenu = GameObject.Find("MenuChoose");
+        TrajectoryMenu = GameObject.Find("MenuTrajectory");
         
         RobotMenu.SetActive(false);
         ChooseMenu.SetActive(false);
+        TrajectoryMenu.SetActive(false);
 
         menuStack = new Stack<GameObject>();
         menuStack.Push(MainMenu);
@@ -91,7 +94,7 @@ public class MyMenuContoler :  Singleton<MyMenuContoler>
 
     public void Back()
     {
-        if (SelectedRobot != null) { SelectedRobot = null; }
+        //if (SelectedRobot != null) { SelectedRobot = null; }
 
         menuStack.Pop().SetActive(false);
         menuStack.Peek().SetActive(true);
@@ -101,7 +104,7 @@ public class MyMenuContoler :  Singleton<MyMenuContoler>
     {
         if (SelectedRobot != null)
         {
-            SelectedRobot.SendMessage("Move");
+            SelectedRobot.SendMessage("StartMoving");
         }
     }
 
@@ -164,6 +167,15 @@ public class MyMenuContoler :  Singleton<MyMenuContoler>
         if (SelectedRobot != null)
         {
             SelectedRobot.SendMessage("CreatePoint");
+        }
+    }
+
+    public void CreateTrajectory()
+    {
+        ChangeMenu(TrajectoryMenu);
+        if (SelectedRobot != null)
+        {
+            SelectedRobot.SendMessage("CreateTrajectory");
         }
     }
 

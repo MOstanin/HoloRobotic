@@ -165,7 +165,7 @@ public class AgilusControl : RobotControll{
         }
 
 
-        Debug.Log("Agilus IK:" + q.ToString());
+       // Debug.Log("Agilus IK:" + q.ToString());
         return q;
     }
 

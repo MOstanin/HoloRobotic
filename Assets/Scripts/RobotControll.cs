@@ -10,15 +10,22 @@ public abstract class RobotControll : MonoBehaviour, IInputClickHandler, IRobot 
 
     public GameObject ball;
 
+    private ArrayList Trajectory; 
+
     //q is goal state
     protected float[] q;
     protected float[] current_q;
+    protected Vector3 goalPos;
+    protected Vector3 goalOri;
+    protected int PointNum;
+
 
     private float speed = 0.4f;
+    private bool MovingFlag;
 
     public void OnInputClicked(InputClickedEventData eventData)
     {
-        GameObject menu = GameObject.Find("Menu");
+        //GameObject menu = GameObject.Find("Menu");
         MyMenuContoler.Instance.RobotMenuCall(this.gameObject);
 
     }
@@ -26,13 +33,46 @@ public abstract class RobotControll : MonoBehaviour, IInputClickHandler, IRobot 
     {
         q = ReadState();
         current_q = (float[]) q.Clone();
+        MovingFlag = false;
     }
 
     protected virtual void Update()
     {
-        if (!QisEquale())
+        if (MovingFlag)
         {
-            RobotMoving();
+            if (!QisEquale())
+            {
+                RobotMoving();
+            }
+        }
+        CheckMovingFlag();
+    }
+
+    protected void CheckMovingFlag()
+    {
+        if (MovingFlag)
+        {
+            if (QisEquale())
+            {
+                PointNum = PointNum + 1;
+
+                if (PointNum < Trajectory.Count)
+                {
+                   // goalPos = ((Vector3[])Trajectory[PointNum])[0];
+                   // goalOri = ((Vector3[])Trajectory[PointNum])[1];
+
+
+                    goalPos = ((GameObject)Trajectory[PointNum]).transform.localPosition * 1000;
+                    goalOri = ((GameObject)Trajectory[PointNum]).transform.localEulerAngles * Mathf.PI / 180;
+
+                    q = InversKin(goalPos, goalOri);
+
+                }
+                else
+                {
+                    MovingFlag = false;
+                }
+            }
         }
     }
 
@@ -77,7 +117,6 @@ public abstract class RobotControll : MonoBehaviour, IInputClickHandler, IRobot 
     }
 
 
-
     public void CreatePoint()
     {
         Matrix<float> EE = ForwardKin(ReadState());
@@ -93,6 +132,20 @@ public abstract class RobotControll : MonoBehaviour, IInputClickHandler, IRobot 
         ball.transform.Rotate(0, 180, 0);
 
         ball.SendMessage("StartTranslation");
+
+        if (Trajectory != null)
+        {
+            
+            pos = ball.transform.localPosition * 1000;
+            Vector3 ori = ball.transform.localEulerAngles * Mathf.PI / 180;
+            //Trajectory.Add(new Vector3[] { pos, ori});
+
+            Trajectory.Add(ball);
+
+
+        }
+
+
     }
 
     public abstract Matrix<float> ForwardKin(float[] q);
@@ -108,7 +161,25 @@ public abstract class RobotControll : MonoBehaviour, IInputClickHandler, IRobot 
         
         return InversKin(Tgoal);
     }
+    
+    public void StartMoving()
+    {
+        MovingFlag = true;
 
+        if (Trajectory != null)
+        {
+            PointNum = 0;
+            //goalPos = ((Vector3[])Trajectory[PointNum])[0];
+            //goalOri = ((Vector3[])Trajectory[PointNum])[1];
+            goalPos = ((GameObject) Trajectory[PointNum]).transform.localPosition * 1000;
+            goalOri = ((GameObject)Trajectory[PointNum]).transform.localEulerAngles * Mathf.PI / 180;
+
+
+
+            q = InversKin(goalPos, goalOri);
+
+        }
+    }
 
 
     public void Move()
@@ -122,6 +193,18 @@ public abstract class RobotControll : MonoBehaviour, IInputClickHandler, IRobot 
         q = InversKin(pos,ori);
 
         //Debug.Log(ForwardKin(InversKin(Tgoal)));
+    }
+
+    public void CreateTrajectory()
+    {
+        if (Trajectory != null)
+        {
+            Trajectory.Clear();
+        }
+        else
+        {
+            Trajectory = new ArrayList();
+        }
     }
 
 }
