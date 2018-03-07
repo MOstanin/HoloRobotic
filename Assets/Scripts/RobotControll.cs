@@ -45,10 +45,10 @@ public abstract class RobotControll : MonoBehaviour, IInputClickHandler, IRobot 
                 RobotMoving();
             }
         }
-        CheckMovingFlag();
+        UpdateMoving();
     }
 
-    protected void CheckMovingFlag()
+    protected void UpdateMoving()
     {
         if (MovingFlag)
         {
@@ -58,12 +58,13 @@ public abstract class RobotControll : MonoBehaviour, IInputClickHandler, IRobot 
 
                 if (PointNum < Trajectory.Count)
                 {
-                   // goalPos = ((Vector3[])Trajectory[PointNum])[0];
-                   // goalOri = ((Vector3[])Trajectory[PointNum])[1];
 
 
-                    goalPos = ((GameObject)Trajectory[PointNum]).transform.localPosition * 1000;
-                    goalOri = ((GameObject)Trajectory[PointNum]).transform.localEulerAngles * Mathf.PI / 180;
+                    Transform ballTransform = ((GameObject)Trajectory[PointNum]).transform;
+                    goalPos = transform.InverseTransformPoint(ballTransform.position) * 1000;
+                    goalOri.x = -(transform.eulerAngles.x - ballTransform.eulerAngles.x) * Mathf.PI / 180;
+                    goalOri.y = -(transform.eulerAngles.y - ballTransform.eulerAngles.y) * Mathf.PI / 180;
+                    goalOri.z = -(transform.eulerAngles.z - ballTransform.eulerAngles.z) * Mathf.PI / 180;
 
                     q = InversKin(goalPos, goalOri);
 
@@ -116,38 +117,6 @@ public abstract class RobotControll : MonoBehaviour, IInputClickHandler, IRobot 
 
     }
 
-
-    public void CreatePoint()
-    {
-        Matrix<float> EE = ForwardKin(ReadState());
-        
-        ball = Instantiate(ball, new Vector3(0,0,0), Quaternion.Euler(new Vector3(0, 0, 0)),gameObject.transform);
-
-        float scale = gameObject.transform.localScale.x;
-        //ball.transform.localScale = new Vector3(10 / (scale*scale), 10 / (scale * scale), 10 / (scale * scale));
-//        Vector3 pos = new Vector3(EE[0,3]/1000, (EE[2, 3])/1000, (EE[1, 3])/1000);
-        Vector3 pos = new Vector3(-0.2f, 1, 0);
-
-        ball.transform.localPosition = pos;
-        ball.transform.Rotate(0, 180, 0);
-
-        ball.SendMessage("StartTranslation");
-
-        if (Trajectory != null)
-        {
-            
-            pos = ball.transform.localPosition * 1000;
-            Vector3 ori = ball.transform.localEulerAngles * Mathf.PI / 180;
-            //Trajectory.Add(new Vector3[] { pos, ori});
-
-            Trajectory.Add(ball);
-
-
-        }
-
-
-    }
-
     public abstract Matrix<float> ForwardKin(float[] q);
     public abstract float[] InversKin(Matrix<float> Tgoal, float[] q0);
     public abstract void SendState(float[] q);
@@ -166,15 +135,17 @@ public abstract class RobotControll : MonoBehaviour, IInputClickHandler, IRobot 
     {
         MovingFlag = true;
 
+        Trajectory = TrajectoryData.Instance.GetTrajectory();
+
         if (Trajectory != null)
         {
             PointNum = 0;
-            //goalPos = ((Vector3[])Trajectory[PointNum])[0];
-            //goalOri = ((Vector3[])Trajectory[PointNum])[1];
-            goalPos = ((GameObject) Trajectory[PointNum]).transform.localPosition * 1000;
-            goalOri = ((GameObject)Trajectory[PointNum]).transform.localEulerAngles * Mathf.PI / 180;
 
-
+            Transform ballTransform = ((GameObject)Trajectory[PointNum]).transform;
+            goalPos = transform.InverseTransformPoint(ballTransform.position) * 1000;
+            goalOri.x = -(transform.eulerAngles.x - ballTransform.eulerAngles.x) * Mathf.PI / 180;
+            goalOri.y = -(transform.eulerAngles.y - ballTransform.eulerAngles.y) * Mathf.PI / 180;
+            goalOri.z = -(transform.eulerAngles.z - ballTransform.eulerAngles.z) * Mathf.PI / 180;
 
             q = InversKin(goalPos, goalOri);
 
@@ -195,16 +166,5 @@ public abstract class RobotControll : MonoBehaviour, IInputClickHandler, IRobot 
         //Debug.Log(ForwardKin(InversKin(Tgoal)));
     }
 
-    public void CreateTrajectory()
-    {
-        if (Trajectory != null)
-        {
-            Trajectory.Clear();
-        }
-        else
-        {
-            Trajectory = new ArrayList();
-        }
-    }
 
 }

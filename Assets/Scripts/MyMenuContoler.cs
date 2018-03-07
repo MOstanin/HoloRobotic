@@ -12,6 +12,7 @@ public class MyMenuContoler :  Singleton<MyMenuContoler>
     private GameObject RobotMenu;
     private GameObject ChooseMenu;
     private GameObject TrajectoryMenu;
+    private GameObject TrajectoryData;
 
     private GameObject SelectedRobot;
 
@@ -45,7 +46,9 @@ public class MyMenuContoler :  Singleton<MyMenuContoler>
         RobotMenu = GameObject.Find("MenuRobot");
         ChooseMenu = GameObject.Find("MenuChoose");
         TrajectoryMenu = GameObject.Find("MenuTrajectory");
-        
+        TrajectoryData = GameObject.Find("TrajectoryData");
+
+
         RobotMenu.SetActive(false);
         ChooseMenu.SetActive(false);
         TrajectoryMenu.SetActive(false);
@@ -166,7 +169,9 @@ public class MyMenuContoler :  Singleton<MyMenuContoler>
     {
         if (SelectedRobot != null)
         {
-            SelectedRobot.SendMessage("CreatePoint");
+            //SelectedRobot.SendMessage("CreatePoint");
+
+            TrajectoryData.SendMessage("CreatePoint");
         }
     }
 
@@ -175,11 +180,11 @@ public class MyMenuContoler :  Singleton<MyMenuContoler>
         ChangeMenu(TrajectoryMenu);
         if (SelectedRobot != null)
         {
-            SelectedRobot.SendMessage("CreateTrajectory");
+            //SelectedRobot.SendMessage("CreateTrajectory");
+            TrajectoryData.SendMessage("CreateTrajectory");
         }
-    }
 
-   
+    }
     public void ShowInfoRobot()
     {
         if (firstCallInfo)
