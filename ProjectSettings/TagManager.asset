@@ -6,6 +6,9 @@ TagManager:
   tags:
   - iiwa
   - agilus
+  - ball
+  - robot
+  - cartezian
   layers:
   - Default
   - TransparentFX

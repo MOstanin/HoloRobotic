@@ -12,27 +12,7 @@ public class IiwaControl : RobotControll {
     public GameObject link5;
     public GameObject link6;
     public GameObject link7;
-
-    // Use this for initialization
-    protected override void Start()
-    {
-        base.Start();
-
-        //link1 = GameObject.Find("link_1");
-        //link2 = GameObject.Find("link_2");
-        //link3 = GameObject.Find("link_3");
-        //link4 = GameObject.Find("link_4");
-        //link5 = GameObject.Find("link_5");
-        //link6 = GameObject.Find("link_6");
-        //link7 = GameObject.Find("link_7");
-        
-    }
-
-    // Update is called once per frame
-    protected override void Update()
-    {
-        base.Update();
-    }
+    
 
     public override Matrix<float> ForwardKin(float[] q)
     {
@@ -58,7 +38,8 @@ public class IiwaControl : RobotControll {
 
     public override float[] InversKin(Matrix<float> Tgoal)
     {
-        q = new float[] { 0, 0, 0, 0, 0, 0, 0 };
+        
+        float[] q = new float[] { 0, 0, 0, 0, 0, 0, 0 };
         //Tgoal[1, 3] = -Tgoal[1, 3];
         //Tgoal[0, 3] = -Tgoal[0, 3];
 
@@ -84,10 +65,10 @@ public class IiwaControl : RobotControll {
 
                 for (int i = 0; i < 7; i++)
                 {
-                    q[i] = q[i] + del_q2[i];
+                    q[i] = q[i] + del_q2[i]*0.1f;
                 }
             }
-            if (c > 1000)
+            if (c > 10000)
             {
                 return new float[] { 0, 0, 0, 0, 0, 0 };
 
@@ -108,7 +89,7 @@ public class IiwaControl : RobotControll {
     private float[] MoveSNS(float[] q_current, float[] error)
     {
 
-        float k = 0.1f;
+        float k = 1;
         float[] speed = new float[] { 85 * k, 85 * k, 100 * k, 75 * k, 130 * k, 135 * k, 135 * k };
         float[] Qmax = new float[] { 170, 130, 170, 130, 170, 130, 175 };
         float[] Qmin = new float[] { -170, -130, -170, -130, -170, -130, -175 };
@@ -144,7 +125,7 @@ public class IiwaControl : RobotControll {
             Matrix<float> jac3 = JW.PseudoInverse();
 
 
-            qSNS = qN + jac3 * (s * errorSNS - jac * qN);
+            qSNS = qN + jac3 * (errorSNS - jac * qN);
             //qSNS = qN + jac3.Multiply(s * errorSNS - jac.Multiply(qN));
 
             float max_q = 0;
@@ -160,7 +141,6 @@ public class IiwaControl : RobotControll {
                         j = i;
                         max_q = Mathf.Abs(qSNS[i]);
                     }
-
                 }
             }
 
@@ -210,7 +190,7 @@ public class IiwaControl : RobotControll {
                 {
                     task_scale = Mathf.Min(s_max, 1);
                 }
-
+                
                 if (task_scale >= s2)
                 {
                     s2 = task_scale;
@@ -226,6 +206,7 @@ public class IiwaControl : RobotControll {
 
                 JW = jac * W;
                 int r = JW.Rank();
+                
                 if (r < 6)
                 {
                     s = s2;
@@ -238,6 +219,7 @@ public class IiwaControl : RobotControll {
 
                     qSNS = qN + jac2 * (s * errorSNS - jac * qN);
                 }
+                
 
             }
 

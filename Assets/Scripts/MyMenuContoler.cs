@@ -6,42 +6,29 @@ using HoloToolkit.Unity.SpatialMapping;
 public class MyMenuContoler :  Singleton<MyMenuContoler>
 {
 
-    private GameObject iiwa;
-    private GameObject Agilus;
+
     private GameObject MainMenu;
     private GameObject RobotMenu;
     private GameObject ChooseMenu;
     private GameObject TrajectoryMenu;
     private GameObject TrajectoryData;
 
-    private GameObject SelectedRobot;
-
-    public GameObject infoTable;
-    private GameObject currentInfoTable;
-
     private Stack<GameObject> menuStack;
 
     public bool ChangePosOri;
     private bool GridFlag;
     bool isChangePositionManualy;
-    bool firstCallInfo;
+    bool InfoRobotIsClosed;
+    bool InfoCartIsClosed;
+
     // Use this for initialization
     void Start () {
         GridFlag = false;
         ChangePosOri = false;
         isChangePositionManualy = false;
-        firstCallInfo = true;
+        InfoRobotIsClosed = true;
+        InfoCartIsClosed = true;
 
-        iiwa = GameObject.Find("IIWA");
-        if (iiwa != null)
-        {
-            iiwa.SetActive(false);
-        }
-        Agilus = GameObject.Find("Agilus");
-        if (Agilus != null)
-        {
-            Agilus.SetActive(false);
-        }
         MainMenu = GameObject.Find("MainMenu");
         RobotMenu = GameObject.Find("MenuRobot");
         ChooseMenu = GameObject.Find("MenuChoose");
@@ -71,16 +58,12 @@ public class MyMenuContoler :  Singleton<MyMenuContoler>
     
     public void AddIIWA()
     {
-        GameObject newIIWA = Instantiate(iiwa);
-        newIIWA.name = "IIWA" + 1.ToString();
-        newIIWA.SetActive(true);
+        AppManager.Instance.AddIIWA();
     }
 
     public void AddAgilus()
     {
-        GameObject newAgilus = Instantiate(Agilus);
-        newAgilus.name = "Agilus" + 1.ToString();
-        newAgilus.SetActive(true);
+        AppManager.Instance.AddAgilus();
     }
 
     public void AddRobot()
@@ -90,33 +73,38 @@ public class MyMenuContoler :  Singleton<MyMenuContoler>
 
     private void ChangeMenu(GameObject menu)
     {
-        menuStack.Peek().SetActive(false);
-        menuStack.Push(menu);
-        menu.SetActive(true);
+        if (menuStack.Peek().name != menu.name)
+        {
+            menuStack.Peek().SetActive(false);
+            menuStack.Push(menu);
+            menu.SetActive(true);
+        }
     }
 
     public void Back()
     {
         //if (SelectedRobot != null) { SelectedRobot = null; }
-
+        
         menuStack.Pop().SetActive(false);
         menuStack.Peek().SetActive(true);
+
+        if (menuStack.Peek() != RobotMenu)
+        {
+            AppManager.Instance.ClearSelecredRobot();
+        }
     }
 
     public void Move()
     {
-        if (SelectedRobot != null)
+        if (AppManager.Instance.SelectedRobot != null)
         {
-            SelectedRobot.SendMessage("StartMoving");
+            AppManager.Instance.SelectedRobot.SendMessage("StartMoving");
         }
     }
 
-    public void RobotMenuCall(GameObject robot)
+    public void RobotMenuCall()
     {
         ChangeMenu(RobotMenu);
-
-        SelectedRobot = robot;
-
     }
 
     public void ShowGrid()
@@ -140,26 +128,26 @@ public class MyMenuContoler :  Singleton<MyMenuContoler>
 
     public void ChangePosition()
     {
-        if (SelectedRobot != null)
+        if (AppManager.Instance.SelectedRobot != null)
         {
-            SelectedRobot.SendMessage("AllowPlacing");
+            AppManager.Instance.SelectedRobot.SendMessage("AllowPlacing");
         }
     }
 
     public void ChangePositionManualy()
     {
         isChangePositionManualy = !isChangePositionManualy;
-        if (SelectedRobot != null)
+        if (AppManager.Instance.SelectedRobot != null)
         {
             if (isChangePositionManualy)
             {
-                SelectedRobot.SendMessage("StartTranslation");
-                SelectedRobot.SendMessage("StartRotation");
+                AppManager.Instance.SelectedRobot.SendMessage("StartTranslation");
+                AppManager.Instance.SelectedRobot.SendMessage("StartRotation");
             }
             else
             {
-                SelectedRobot.SendMessage("StopTranslation");
-                SelectedRobot.SendMessage("StopRotation");
+                AppManager.Instance.SelectedRobot.SendMessage("StopTranslation");
+                AppManager.Instance.SelectedRobot.SendMessage("StopRotation");
             }
                 
         }
@@ -167,7 +155,7 @@ public class MyMenuContoler :  Singleton<MyMenuContoler>
     
     public void AddPoint()
     {
-        if (SelectedRobot != null)
+        if (AppManager.Instance.SelectedRobot != null)
         {
             //SelectedRobot.SendMessage("CreatePoint");
 
@@ -178,66 +166,51 @@ public class MyMenuContoler :  Singleton<MyMenuContoler>
     public void CreateTrajectory()
     {
         ChangeMenu(TrajectoryMenu);
-        if (SelectedRobot != null)
+        if (AppManager.Instance.SelectedRobot != null)
         {
             //SelectedRobot.SendMessage("CreateTrajectory");
             TrajectoryData.SendMessage("CreateTrajectory");
         }
 
     }
+
     public void ShowInfoRobot()
     {
-        if (firstCallInfo)
+        if (InfoRobotIsClosed)
         {
-            currentInfoTable = Instantiate(infoTable, new Vector3(0, 0, 0), Quaternion.Euler(new Vector3(0, 0, 0)), gameObject.transform);
-
-            currentInfoTable.transform.localPosition = new Vector3(0.6f, -0.03f, -0.05f);
-            currentInfoTable.transform.localEulerAngles = new Vector3(0, 25, -15);
-
-
-            GameObject agilusInfo = currentInfoTable.transform.GetChild(0).gameObject;
-            GameObject iiwaInfo = currentInfoTable.transform.GetChild(1).gameObject;
-            GameObject cartInfo = currentInfoTable.transform.GetChild(2).gameObject;
-
-            cartInfo.SetActive(false);
-
-            if (SelectedRobot.tag == "agilus")
+            if (!InfoCartIsClosed)
             {
-                iiwaInfo.SetActive(false);
+                InfoCartIsClosed = true;
+                AppManager.Instance.CloseInfoRobot();
             }
-            else if (SelectedRobot.tag == "iiwa")
-            {
-                agilusInfo.SetActive(false);
-            }
-            firstCallInfo = false;
+            AppManager.Instance.ShowInfoRobot();
+            InfoRobotIsClosed = false;
         }
         else
         {
-            firstCallInfo = true;
-            Destroy(currentInfoTable);
+            InfoRobotIsClosed = true;
+            AppManager.Instance.CloseInfoRobot();
         }
     }
 
-    public float[] RobotState()
+    public void ShowInfoRobotCartezian()
     {
-        if (SelectedRobot != null)
+        if (InfoCartIsClosed)
         {
-            RobotControll robot = SelectedRobot.GetComponent<RobotControll>();
-            return robot.ReadState();
+            if (!InfoRobotIsClosed) {
+                InfoRobotIsClosed = true;
+                AppManager.Instance.CloseInfoRobot();
+            }
+            AppManager.Instance.ShowInfoRobotCartezian();
+            InfoCartIsClosed = false;
         }
         else
         {
-            // better send error
-            return null;
+            InfoCartIsClosed = true;
+            AppManager.Instance.CloseInfoRobot();
         }
     }
 
-    public void SendStateToRobot(float[] q)
-    {
-        if (SelectedRobot != null) {
-            RobotControll robot = SelectedRobot.GetComponent<RobotControll>();
-            robot.SendState(q);
-        }
-    }
+
 
 }

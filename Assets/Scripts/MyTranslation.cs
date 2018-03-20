@@ -21,7 +21,15 @@ public class MyTranslation : MonoBehaviour, INavigationHandler
 
     void Start()
     {
-        flag = false;
+        if (this.gameObject.tag == "ball")
+        {
+            flag = true;
+        }
+        else
+        {
+            flag = false;
+
+        }
     }
 
     void Update()

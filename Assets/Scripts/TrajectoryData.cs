@@ -12,7 +12,8 @@ public class TrajectoryData : Singleton<TrajectoryData>
 
     public void CreatePoint()
     {
-        ball = Instantiate(ball,this.transform);
+        GameObject ball = Instantiate(this.ball,this.transform);
+        //ball.transform.Translate(new Vector3(0.1f, 0.1f, 0.1f));
         ball.SendMessage("StartTranslation");
 
         if (Trajectory != null)
@@ -25,7 +26,12 @@ public class TrajectoryData : Singleton<TrajectoryData>
     {
         if (Trajectory != null)
         {
+            for (int i = 0; i < Trajectory.Count; i++)
+            {
+                Destroy((GameObject) Trajectory[i]);
+            }
             Trajectory.Clear();
+
         }
         else
         {

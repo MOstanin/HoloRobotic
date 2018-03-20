@@ -4,9 +4,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using HoloToolkit.Unity.SpatialMapping;
-using HoloToolkit.Unity;
 using HoloToolkit.Unity.InputModule;
-
+using HoloToolkit.Unity;
 
 /// <summary>
 /// The TapToPlace class is a basic way to enable users to move objects 
@@ -15,10 +14,9 @@ using HoloToolkit.Unity.InputModule;
 /// Users will be able to tap objects, gaze elsewhere, and perform the tap gesture again to place.
 /// This script is used in conjunction with GazeManager, WorldAnchorManager, and SpatialMappingManager.
 /// </summary>
-
-//[RequireComponent(typeof(Collider))]
-//[RequireComponent(typeof(Interpolator))]
-public class MyTapToPlace : MonoBehaviour, IInputClickHandler
+[RequireComponent(typeof(Collider))]
+[RequireComponent(typeof(Interpolator))]
+public class BallTapToPlace : MonoBehaviour, IInputClickHandler
 {
     [Tooltip("Distance from camera to keep the object while placing it.")]
     public float DefaultGazeDistance = 2.0f;
@@ -53,12 +51,8 @@ public class MyTapToPlace : MonoBehaviour, IInputClickHandler
     private Dictionary<GameObject, int> layerCache = new Dictionary<GameObject, int>();
     private Vector3 PlacementPosOffset;
 
-
-
-
     protected virtual void Start()
     {
-        
         if (PlaceParentOnTap)
         {
             ParentGameObjectToPlace = GetParentToPlace();
@@ -132,26 +126,21 @@ public class MyTapToPlace : MonoBehaviour, IInputClickHandler
         interpolator.SetTargetPosition(placementPosition);
 
         // Rotate this object to face the user.
-        interpolator.SetTargetRotation(Quaternion.Euler(0, cameraTransform.localEulerAngles.y, 0));
-    }
+        //interpolator.SetTargetRotation(Quaternion.Euler(0, cameraTransform.localEulerAngles.y, 0));
+        Vector3 CursorRot = GameObject.Find("DefaultCursor").transform.rotation.eulerAngles;
 
-    bool AllowPlacingFlag;
-    public void AllowPlacing()
-    {
-        AllowPlacingFlag = true;
+        CursorRot.x = CursorRot.x - 90;
+        CursorRot.z = CursorRot.z + 90;
+
+        interpolator.SetTargetRotation(Quaternion.Euler(CursorRot));
     }
 
     public virtual void OnInputClicked(InputClickedEventData eventData)
     {
-        if (AllowPlacingFlag)
-        {
-            AllowPlacingFlag = !IsBeingPlaced;
-            IsBeingPlaced = !IsBeingPlaced;
-            HandlePlacement();
-            eventData.Use();
-        }
         // On each tap gesture, toggle whether the user is in placing mode.
-        
+        IsBeingPlaced = !IsBeingPlaced;
+        HandlePlacement();
+        eventData.Use();
     }
 
     private void HandlePlacement()
