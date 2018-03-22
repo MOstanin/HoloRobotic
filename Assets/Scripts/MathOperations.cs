@@ -196,6 +196,59 @@ public class MathOperations {
         return Tright;
     }
 
-
+    public static Matrix<float> Tdx()
+    {
+       return Matrix<float>.Build.DenseOfArray(new float[,] {
+        {0,0,0,1},
+        {0,0,0,0},
+        {0,0,0,0},
+        {0,0,0,0} });
+    }
+    public static Matrix<float> Tdy()
+    {
+        return Matrix<float>.Build.DenseOfArray(new float[,] {
+        {0,0,0,0},
+        {0,0,0,1},
+        {0,0,0,0},
+        {0,0,0,0} });
+    }
+    public static Matrix<float> Tdz()
+    {
+        return Matrix<float>.Build.DenseOfArray(new float[,] {
+        {0,0,0,0},
+        {0,0,0,0},
+        {0,0,0,1},
+        {0,0,0,0} });
+    }
+    public static Matrix<float> Rdx(float q)
+    {
+        return Matrix<float>.Build.DenseOfArray(new float[,]
+    {
+                {0, 0,              0,            0},
+                {0, -Mathf.Sin(q), -Mathf.Cos(q), 0},
+                {0, Mathf.Cos(q),  -Mathf.Sin(q), 0},
+                {0,            0,             0,  0}
+    });
+    }
+    public static Matrix<float> Rdy(float q)
+    {
+        return Matrix<float>.Build.DenseOfArray(new float[,]
+            {
+                {-Mathf.Sin(q),  0, Mathf.Cos(q), 0},
+                {0,             0,            0,  0},
+                {-Mathf.Cos(q), 0, -Mathf.Sin(q), 0},
+                {0,             0,            0, 0}
+            });
+    }
+    public static Matrix<float> Rdz(float q)
+    {
+        return Matrix<float>.Build.DenseOfArray(new float[,]
+            {
+                {-Mathf.Sin(q), -Mathf.Cos(q), 0, 0},
+                {Mathf.Cos(q), -Mathf.Sin(q),  0, 0},
+                {0,            0,             0, 0},
+                {0,            0,             0, 0}
+            });
+    }
 
 }
