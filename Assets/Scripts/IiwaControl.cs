@@ -43,7 +43,7 @@ public class IiwaControl : RobotControll {
         //Tgoal[1, 3] = -Tgoal[1, 3];
         //Tgoal[0, 3] = -Tgoal[0, 3];
 
-        //Tgoal = Tgoal * MathOperations.CalcMatrixRx(0) * MathOperations.CalcMatrixRy(0) * MathOperations.CalcMatrixRz();
+        Tgoal = Tgoal * MathOperations.MatrixRz4(-Mathf.PI / 2);
         float diff_r = 0;
         float diif_o = 0;
         int c = 0;
@@ -65,12 +65,12 @@ public class IiwaControl : RobotControll {
 
                 for (int i = 0; i < 7; i++)
                 {
-                    q[i] = q[i] + del_q2[i]*0.1f;
+                    q[i] = q[i] + del_q2[i]*0.05f;
                 }
             }
-            if (c > 10000)
+            if (c > 500)
             {
-                return new float[] { 0, 0, 0, 0, 0, 0 };
+                return new float[] { 0, 0, 0, 0, 0, 0, 0 };
 
             }
             else

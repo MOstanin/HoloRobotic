@@ -6,7 +6,7 @@ using HoloToolkit.Examples.InteractiveElements;
 public abstract class InfoControlBase : MonoBehaviour {
 
 
-    protected SliderGestureControl[] sliders;
+    protected MySliderGestureControl[] sliders;
 
     //protected float[] q;
 

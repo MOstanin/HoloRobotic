@@ -10,12 +10,7 @@ public class AppManager : Singleton<AppManager> {
     private GameObject iiwa;
     [SerializeField]
     private GameObject Agilus;
-
-    [SerializeField]
-    private GameObject InfoTable;
-
-    private GameObject currentInfoTable;
-
+    
     private LinkedList<GameObject> RobotMass;
 
     public GameObject SelectedRobot { private set; get; }
@@ -71,6 +66,15 @@ public class AppManager : Singleton<AppManager> {
         newAgilus.SetActive(true);
     }
 
+    public void DestroyRobot()
+    {
+        if (SelectedRobot != null)
+        {
+            RobotMass.Remove(SelectedRobot);
+            Destroy(SelectedRobot);
+        }
+    }
+
     public void RobotSelected(GameObject robot)
     {
         if (SelectedRobot != null)
@@ -78,7 +82,7 @@ public class AppManager : Singleton<AppManager> {
             CloseInfoRobot();
         }
         SelectedRobot = robot;
-        MyMenuContoler.Instance.RobotMenuCall();
+        MyMenuContoler.Instance.RobotMenuCall(robot.tag);
     }
 
     public float[] RobotState()

@@ -102,9 +102,23 @@ public class MyMenuContoler :  Singleton<MyMenuContoler>
         }
     }
 
-    public void RobotMenuCall()
+    public void RobotMenuCall(string tag)
     {
         ChangeMenu(RobotMenu);
+        switch (tag){
+            case "iiwa":
+                {
+                    TextMesh textMesh =  GameObject.Find("RobotLable").GetComponent<TextMesh>();
+                    textMesh.text = "IIWA";
+                    break;
+                }
+            case "agilus":
+                {
+                    TextMesh textMesh = GameObject.Find("RobotLable").GetComponent<TextMesh>();
+                    textMesh.text = "Agilus";
+                    break;
+                }
+        }
     }
 
     public void ShowGrid()
@@ -211,6 +225,10 @@ public class MyMenuContoler :  Singleton<MyMenuContoler>
         }
     }
 
-
+    public void DestroyRobot()
+    {
+        AppManager.Instance.DestroyRobot();
+        Back();
+    }
 
 }

@@ -19,16 +19,16 @@ public class IiwaInfoControl : InfoControlBase
 
         Component[] components = slider1.GetComponents(typeof(GestureInteractive));
 
-        base.sliders = new SliderGestureControl[7];
+        base.sliders = new MySliderGestureControl[7];
 
 
-        base.sliders[0] = (SliderGestureControl)slider1.GetComponent<GestureInteractive>().Control;
-        base.sliders[1] = (SliderGestureControl)slider2.GetComponent<GestureInteractive>().Control;
-        base.sliders[2] = (SliderGestureControl)slider3.GetComponent<GestureInteractive>().Control;
-        base.sliders[3] = (SliderGestureControl)slider4.GetComponent<GestureInteractive>().Control;
-        base.sliders[4] = (SliderGestureControl)slider5.GetComponent<GestureInteractive>().Control;
-        base.sliders[5] = (SliderGestureControl)slider6.GetComponent<GestureInteractive>().Control;
-        base.sliders[6] = (SliderGestureControl)slider7.GetComponent<GestureInteractive>().Control;
+        base.sliders[0] = (MySliderGestureControl)slider1.GetComponent<GestureInteractive>().Control;
+        base.sliders[1] = (MySliderGestureControl)slider2.GetComponent<GestureInteractive>().Control;
+        base.sliders[2] = (MySliderGestureControl)slider3.GetComponent<GestureInteractive>().Control;
+        base.sliders[3] = (MySliderGestureControl)slider4.GetComponent<GestureInteractive>().Control;
+        base.sliders[4] = (MySliderGestureControl)slider5.GetComponent<GestureInteractive>().Control;
+        base.sliders[5] = (MySliderGestureControl)slider6.GetComponent<GestureInteractive>().Control;
+        base.sliders[6] = (MySliderGestureControl)slider7.GetComponent<GestureInteractive>().Control;
     }
     
 }

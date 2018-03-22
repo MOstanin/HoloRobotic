@@ -648,7 +648,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4703fef41782f624bb7134ece0736bb1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  InfoTable: {fileID: 1433811202033582, guid: a295594c7a8bb7f4eb952c727093f1a5, type: 2}
+  InfoTable: {fileID: 1724817905160074, guid: a295594c7a8bb7f4eb952c727093f1a5, type: 2}
   link1: {fileID: 1762248800812078}
   link2: {fileID: 1979822493077206}
   link3: {fileID: 1439040411260454}
@@ -696,5 +696,5 @@ MonoBehaviour:
   PlaceParentOnTap: 0
   ParentGameObjectToPlace: {fileID: 0}
   IsBeingPlaced: 0
-  AllowMeshVisualizationControl: 1
+  AllowMeshVisualizationControl: 0
   UseColliderCenter: 0

@@ -11,10 +11,7 @@ public class AgilusControl : RobotControll{
     public GameObject link4;
     public GameObject link5;
     public GameObject link6;
-
-    //float[] q;
-
-
+    
 
     // Use this for initialization
     protected override void Start () {
