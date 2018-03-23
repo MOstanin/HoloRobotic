@@ -1,6 +1,6 @@
 fileFormatVersion: 2
-guid: 089130bc8c2fe444e9f48d8d96bf33ab
-timeCreated: 1521584753
+guid: a93ec8b1273d0c24fb6b3708d1a619ca
+timeCreated: 1521749610
 licenseType: Free
 PluginImporter:
   externalObjects: {}
@@ -15,19 +15,19 @@ PluginImporter:
     second:
       enabled: 0
       settings:
-        Exclude Android: 0
-        Exclude Editor: 0
-        Exclude Linux: 0
-        Exclude Linux64: 0
-        Exclude LinuxUniversal: 0
-        Exclude OSXUniversal: 0
-        Exclude Win: 0
-        Exclude Win64: 0
-        Exclude WindowsStoreApps: 1
+        Exclude Android: 1
+        Exclude Editor: 1
+        Exclude Linux: 1
+        Exclude Linux64: 1
+        Exclude LinuxUniversal: 1
+        Exclude OSXUniversal: 1
+        Exclude Win: 1
+        Exclude Win64: 1
+        Exclude WindowsStoreApps: 0
   - first:
       Android: Android
     second:
-      enabled: 1
+      enabled: 0
       settings:
         CPU: ARMv7
   - first:
@@ -38,7 +38,7 @@ PluginImporter:
   - first:
       Editor: Editor
     second:
-      enabled: 1
+      enabled: 0
       settings:
         CPU: AnyCPU
         DefaultValueInitialized: true
@@ -58,42 +58,43 @@ PluginImporter:
   - first:
       Standalone: Linux
     second:
-      enabled: 1
+      enabled: 0
       settings:
         CPU: x86
   - first:
       Standalone: Linux64
     second:
-      enabled: 1
+      enabled: 0
       settings:
         CPU: x86_64
   - first:
       Standalone: LinuxUniversal
     second:
-      enabled: 1
-      settings: {}
+      enabled: 0
+      settings:
+        CPU: None
   - first:
       Standalone: OSXUniversal
     second:
-      enabled: 1
+      enabled: 0
       settings:
         CPU: AnyCPU
   - first:
       Standalone: Win
     second:
-      enabled: 1
+      enabled: 0
       settings:
         CPU: AnyCPU
   - first:
       Standalone: Win64
     second:
-      enabled: 1
+      enabled: 0
       settings:
         CPU: AnyCPU
   - first:
       Windows Store Apps: WindowsStoreApps
     second:
-      enabled: 0
+      enabled: 1
       settings:
         CPU: AnyCPU
         DontProcess: False

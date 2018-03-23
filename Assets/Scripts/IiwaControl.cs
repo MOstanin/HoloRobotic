@@ -27,7 +27,7 @@ public class IiwaControl : RobotControll
         //Tgoal[1, 3] = -Tgoal[1, 3];
         //Tgoal[0, 3] = -Tgoal[0, 3];
 
-        //Tgoal = Tgoal * MathOperations.MatrixRz4(-Mathf.PI / 2);
+        Tgoal = Tgoal * MathOperations.MatrixRz4( Mathf.PI / 2) * MathOperations.MatrixRx4(Mathf.PI / 2);
         float diff_r = 0;
         float diif_o = 0;
         int c = 0;
