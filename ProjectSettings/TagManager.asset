@@ -9,6 +9,7 @@ TagManager:
   - ball
   - robot
   - cartezian
+  - Pointer
   layers:
   - Default
   - TransparentFX

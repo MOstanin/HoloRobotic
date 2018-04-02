@@ -8,7 +8,16 @@ public class TrajectoryData : Singleton<TrajectoryData>
 
     public GameObject ball;
     private ArrayList Trajectory;
+    private ArrayList TrajectoriesMass;
 
+    public void AddPoint(GameObject point)
+    {
+        if (Trajectory != null)
+        {
+            Trajectory.Add(point);
+
+        }
+    }
 
     public void CreatePoint()
     {
@@ -26,11 +35,7 @@ public class TrajectoryData : Singleton<TrajectoryData>
     {
         if (Trajectory != null)
         {
-            for (int i = 0; i < Trajectory.Count; i++)
-            {
-                Destroy((GameObject) Trajectory[i]);
-            }
-            Trajectory.Clear();
+            ClearTraject();
 
         }
         else
@@ -41,7 +46,36 @@ public class TrajectoryData : Singleton<TrajectoryData>
 
     public ArrayList GetTrajectory()
     {
-        return Trajectory;
+        return (ArrayList) TrajectoriesMass[0];
     }
 
+    public void SaveTrajecroty()
+    {
+        if (TrajectoriesMass != null)
+        {
+            TrajectoriesMass.Add(Trajectory);
+            //ClearTraject();
+        }
+        else
+        {
+            TrajectoriesMass = new ArrayList
+            {
+                Trajectory
+            };
+            //ClearTraject();
+        }
+    }
+
+    private void ClearTraject()
+    {
+        if (Trajectory != null)
+        {
+            for (int i = 0; i < Trajectory.Count; i++)
+            {
+                Destroy((GameObject)Trajectory[i]);
+            }
+            Trajectory.Clear();
+
+        }
+    }
 }
