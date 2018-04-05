@@ -46,7 +46,15 @@ public class TrajectoryData : Singleton<TrajectoryData>
 
     public ArrayList GetTrajectory()
     {
-        return (ArrayList) TrajectoriesMass[0];
+        /*
+        if (TrajectoriesMass == null)
+        {
+            Debug.Log("TrajectoriesMass = null");
+            return null;
+        }
+        return (ArrayList)TrajectoriesMass[TrajectoriesMass.Count-1];
+        */
+        return Trajectory;
     }
 
     public void SaveTrajecroty()
@@ -58,10 +66,8 @@ public class TrajectoryData : Singleton<TrajectoryData>
         }
         else
         {
-            TrajectoriesMass = new ArrayList
-            {
-                Trajectory
-            };
+            TrajectoriesMass = new ArrayList();
+            TrajectoriesMass.Add(Trajectory);
             //ClearTraject();
         }
     }

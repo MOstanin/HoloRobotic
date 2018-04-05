@@ -196,7 +196,6 @@ public class AgilusControl : RobotControll{
 
     public override float[] InversKin(Matrix<float> Tgoal, float[] q0)
     {
-        q = q0;
         return InversKin(Tgoal);
     }
 

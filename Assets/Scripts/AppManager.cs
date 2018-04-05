@@ -118,13 +118,20 @@ public class AppManager : Singleton<AppManager> {
 
     public void DrawTrajectory()
     {
-        pointer = Instantiate(pointerPrefab);
-        pointer.name = "Pointer";
+        if (pointer == null)
+        {
+            pointer = Instantiate(pointerPrefab);
+            pointer.name = "Pointer";
+        }
+        else
+        {
+            pointer.SetActive(true);
+        }
     }
 
     public void StopDrawing()
     {
-        Destroy(pointer);
+        pointer.SetActive(false);
     }
     
     public void SaveTrajectoty()

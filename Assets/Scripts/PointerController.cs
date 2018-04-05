@@ -12,6 +12,7 @@ public class PointerController : MonoBehaviour {
     private Interpolator interpolator;
     Vector3 offset;
     public GameObject ball;
+    public GameObject prim;
 
     enum State { NoDrawing,  FirstClick, Drawing, SecondClick, Destroying};
     State state;
@@ -19,13 +20,17 @@ public class PointerController : MonoBehaviour {
     // Use this for initialization
     void Start () {
         interpolator = gameObject.EnsureComponent<Interpolator>();
-        offset = new Vector3(0, 0, 0);
-        state = State.NoDrawing;
 
+        offset = new Vector3(0, 0, 0);
         InteractionManager.InteractionSourceLost += InteractionManager_SourceLost;
         InteractionManager.InteractionSourceDetected += InteractionManager_SourceDetected;
         InteractionManager.InteractionSourceUpdated += InteractionManager_SourceUpdated;
         InteractionManager.InteractionSourcePressed += InteractionManager_SourcePressed;
+    }
+    private void OnEnable()
+    {
+        state = State.NoDrawing;
+        
     }
 
     private void InteractionManager_SourcePressed(InteractionSourcePressedEventArgs obj)
@@ -35,15 +40,23 @@ public class PointerController : MonoBehaviour {
         {
             case State.NoDrawing:
                 {
+                    if (gameObject.activeSelf == true)
+                    {
+                        state = State.FirstClick;
+                    }
+                    
+                    break;
+                }
+            case State.FirstClick:
+                {
                     state = State.Drawing;
                     TrajectoryData.Instance.CreateTrajectory();
                     break;
                 }
             case State.Drawing:
                 {
-                    state = State.Destroying;
-                    TrajectoryData.Instance.SaveTrajecroty();
-                    
+                    state = State.NoDrawing;
+                    //TrajectoryData.Instance.SaveTrajecroty();
                     break;
                 }
         }
@@ -51,39 +64,46 @@ public class PointerController : MonoBehaviour {
 
     private void InteractionManager_SourceUpdated(InteractionSourceUpdatedEventArgs obj)
     {
-        Vector3 pos = new Vector3(0,1,0);
-        if (obj.state.source.kind == InteractionSourceKind.Hand)
+        if (state != State.NoDrawing)
         {
-            obj.state.sourcePose.TryGetPosition(out pos);
-
-            interpolator.SetTargetPosition(pos+offset);
-
-            if (state == State.Drawing)
+            
+            Vector3 pos = new Vector3(0, 1, 0);
+            if (obj.state.source.kind == InteractionSourceKind.Hand)
             {
-                GameObject point = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                point.transform.parent = TrajectoryData.Instance.transform;
-                point.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
-                point.transform.position = transform.position;
-                TrajectoryData.Instance.AddPoint(point);
+                obj.state.sourcePose.TryGetPosition(out pos);
+
+                interpolator.SetTargetPosition(pos + offset);
+
+                if (state == State.Drawing)
+                {
+
+                    GameObject point = Instantiate(prim, TrajectoryData.Instance.transform);
+
+                    Vector3 a = transform.position;
+                    point.transform.position = a;
+                    point.transform.Rotate(0, 0, -90);
+                    TrajectoryData.Instance.AddPoint(point);
+                }
+
             }
-      
         }
-        
     }
 
     private void InteractionManager_SourceDetected(InteractionSourceDetectedEventArgs obj)
     {
-        
-        if (obj.state.source.kind == InteractionSourceKind.Hand)
+        if (state != State.NoDrawing)
         {
-            offset = Camera.main.transform.forward / 2.2f;
+            if (obj.state.source.kind == InteractionSourceKind.Hand)
+            {
+                offset = Camera.main.transform.forward / 2;
 
+            }
         }
     }
 
     private void InteractionManager_SourceLost(InteractionSourceLostEventArgs obj)
     {
-        if (state == State.Destroying)
+        if (state == State.NoDrawing)
         {
             gameObject.SetActive(false);
         }

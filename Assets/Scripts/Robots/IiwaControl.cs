@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using MathNet.Numerics.LinearAlgebra;
+using MathNet.Numerics.LinearAlgebra.Factorization;
 using UnityEngine;
 
 public class IiwaControl : RobotControll
@@ -15,15 +16,16 @@ public class IiwaControl : RobotControll
     public GameObject link7;
     
 
-    public override float[] InversKin(Matrix<float> Tgoal, float[] q0)
-    {
-        return InversKin(Tgoal);
-    }
-
     public override float[] InversKin(Matrix<float> Tgoal)
     {
-
         float[] q = new float[] { 0, 0, 0, 0, 0, 0, 0 };
+        return InversKin(Tgoal, q);
+    }
+
+    public override float[] InversKin(Matrix<float> Tgoal, float[] q0)
+    {
+
+        //float[] q = new float[] { 0, 0, 0, 0, 0, 0, 0 };
         //Tgoal[1, 3] = -Tgoal[1, 3];
         //Tgoal[0, 3] = -Tgoal[0, 3];
 
@@ -106,7 +108,26 @@ public class IiwaControl : RobotControll
 
 
             Matrix<float> JW = jac * W;
-            Matrix<float> jac3 = JW.PseudoInverse();
+            //Matrix<float> jac3 = JW.PseudoInverse();
+            
+            Svd<float> svd  = JW.Svd();
+            //float[] singularVal = new float[6];
+
+            Matrix<float> S = Matrix<float>.Build.DenseIdentity(7, 6);
+            for (int i = 0; i< 6; i++)
+            {
+                if (svd.S[i] != 0)
+                {
+                    S[i, i] = 1 / (svd.S[i]);
+                }
+                else
+                {
+                    S[i, i] = 1E10f;
+                }
+            }
+
+            Matrix<float> jac3 = svd.VT.Transpose() * S * svd.U.Transpose();
+            //Matrix<float> jac3 = (JW.Transpose() * JW).Inverse() * JW.Transpose();
 
 
             qSNS = qN + jac3 * (errorSNS - jac * qN);
@@ -199,7 +220,24 @@ public class IiwaControl : RobotControll
                     lim_exceeded = false;
 
                     JW = jac * W;
-                    Matrix<float> jac2 = JW.PseudoInverse();
+                    //Matrix<float> jac2 = JW.PseudoInverse();
+                    Svd<float> svd2 = JW.Svd();
+                    //float[] singularVal = new float[6];
+
+                    Matrix<float> S2 = Matrix<float>.Build.DenseIdentity(7, 6);
+                    for (int i = 0; i < 6; i++)
+                    {
+                        if (svd.S[i] != 0)
+                        {
+                            S2[i, i] = 1 / (svd2.S[i]);
+                        }
+                        else
+                        {
+                            S2[i, i] = 1E10f;
+                        }
+                    }
+
+                    Matrix<float> jac2 = svd2.VT.Transpose() * S2 * svd2.U.Transpose();
 
                     qSNS = qN + jac2 * (s * errorSNS - jac * qN);
                 }
@@ -209,8 +247,12 @@ public class IiwaControl : RobotControll
 
         } while (lim_exceeded);
 
-
-        return qSNS.AsArray();
+        float[] qOut = new float[7];
+        for (int i = 0; i < 7; i++)
+        {
+            qOut[i] = qSNS[i];
+        }
+        return qOut;
 
     }
 

@@ -250,5 +250,4 @@ public class MathOperations {
                 {0,            0,             0, 0}
             });
     }
-
 }
