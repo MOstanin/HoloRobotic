@@ -20,6 +20,7 @@ public class MyMenuContoler :  Singleton<MyMenuContoler>
     bool isChangePositionManualy;
     bool InfoRobotIsClosed;
     bool InfoCartIsClosed;
+    private bool DrawingIsRuning;
 
     // Use this for initialization
     void Start () {
@@ -28,6 +29,7 @@ public class MyMenuContoler :  Singleton<MyMenuContoler>
         isChangePositionManualy = false;
         InfoRobotIsClosed = true;
         InfoCartIsClosed = true;
+        DrawingIsRuning = false;
 
         MainMenu = GameObject.Find("MainMenu");
         RobotMenu = GameObject.Find("MenuRobot");
@@ -180,11 +182,8 @@ public class MyMenuContoler :  Singleton<MyMenuContoler>
     public void CreateTrajectory()
     {
         ChangeMenu(TrajectoryMenu);
-        if (AppManager.Instance.SelectedRobot != null)
-        {
-            //SelectedRobot.SendMessage("CreateTrajectory");
-            TrajectoryData.SendMessage("CreateTrajectory");
-        }
+        TrajectoryData.SendMessage("CreateTrajectory");
+        
 
     }
 
@@ -231,4 +230,29 @@ public class MyMenuContoler :  Singleton<MyMenuContoler>
         Back();
     }
 
+    public void DrawTrajectory()
+    {
+        /*
+        if (!DrawingIsRuning)
+        {
+            AppManager.Instance.DrawTrajectory();
+            DrawingIsRuning = true;
+            //change label
+        }
+        else
+        {
+            AppManager.Instance.StopDrawing();
+            DrawingIsRuning = false;
+            //change label
+        }
+        */
+        AppManager.Instance.DrawTrajectory();
+        
+    }
+
+    public void SaveTrajectoty()
+    {
+        AppManager.Instance.SaveTrajectoty();
+        Back();
+    }
 }

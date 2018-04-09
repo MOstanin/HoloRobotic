@@ -1,6 +1,6 @@
 fileFormatVersion: 2
-guid: a93ec8b1273d0c24fb6b3708d1a619ca
-timeCreated: 1521749610
+guid: 151c54ce5155abb459787c7cd64858b9
+timeCreated: 1522936380
 licenseType: Free
 PluginImporter:
   externalObjects: {}
@@ -98,9 +98,9 @@ PluginImporter:
       settings:
         CPU: AnyCPU
         DontProcess: False
-        PlaceholderPath: 
-        SDK: AnySDK
-        ScriptingBackend: AnyScriptingBackend
+        PlaceholderPath: Assets/Plugins/MathNet.Numerics.dll
+        SDK: UWP
+        ScriptingBackend: DotNet
   userData: 
   assetBundleName: 
   assetBundleVariant: 

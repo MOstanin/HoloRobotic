@@ -10,20 +10,13 @@ public class AppManager : Singleton<AppManager> {
     private GameObject iiwa;
     [SerializeField]
     private GameObject Agilus;
+    [SerializeField]
+    private GameObject pointerPrefab;
+    private GameObject pointer;
     
     private LinkedList<GameObject> RobotMass;
 
     public GameObject SelectedRobot { private set; get; }
-
-    // Use this for initialization
-    void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
 
 
     public void ClearSelecredRobot()
@@ -121,5 +114,28 @@ public class AppManager : Singleton<AppManager> {
     public void ShowInfoRobotCartezian()
     {
         SelectedRobot.SendMessage("ShowInfoRobotCartezian");
+    }
+
+    public void DrawTrajectory()
+    {
+        if (pointer == null)
+        {
+            pointer = Instantiate(pointerPrefab);
+            pointer.name = "Pointer";
+        }
+        else
+        {
+            pointer.SetActive(true);
+        }
+    }
+
+    public void StopDrawing()
+    {
+        pointer.SetActive(false);
+    }
+    
+    public void SaveTrajectoty()
+    {
+        TrajectoryData.Instance.SaveTrajecroty();
     }
 }

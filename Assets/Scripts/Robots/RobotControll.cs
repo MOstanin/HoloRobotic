@@ -155,7 +155,7 @@ public abstract class RobotControll : MonoBehaviour, IInputClickHandler, IRobot 
                             goalOri.y = -(transform.eulerAngles.y - ballTransform.eulerAngles.y) * Mathf.PI / 180;
                             goalOri.z = -(transform.eulerAngles.z - ballTransform.eulerAngles.z) * Mathf.PI / 180;
 
-                            q = InversKin(goalPos, goalOri);
+                            q = InversKin(goalPos, goalOri, q);
 
                         }
                         else
@@ -239,7 +239,14 @@ public abstract class RobotControll : MonoBehaviour, IInputClickHandler, IRobot 
         
         return InversKin(Tgoal);
     }
-    
+
+    public float[] InversKin(Vector3 pos, Vector3 ori, float[] q)
+    {
+        Matrix<float> Tgoal = CreareMatrixT(pos, ori);
+
+        return InversKin(Tgoal,q);
+    }
+
     public void StartMoving()
     {
         
@@ -257,7 +264,7 @@ public abstract class RobotControll : MonoBehaviour, IInputClickHandler, IRobot 
             goalOri.y = -(transform.eulerAngles.y - ballTransform.eulerAngles.y) * Mathf.PI / 180;
             goalOri.z = -(transform.eulerAngles.z - ballTransform.eulerAngles.z) * Mathf.PI / 180;
 
-            q = InversKin(goalPos, goalOri);
+            q = InversKin(goalPos, goalOri, q);
 
         }
     }
