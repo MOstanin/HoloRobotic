@@ -108,7 +108,10 @@ public class AppManager : Singleton<AppManager> {
 
     public void CloseInfoRobot()
     {
-        SelectedRobot.SendMessage("CloseInfoRobot");
+        if (SelectedRobot != null)
+        {
+            SelectedRobot.SendMessage("CloseInfoRobot");
+        }
     }
 
     public void ShowInfoRobotCartezian()
@@ -122,6 +125,8 @@ public class AppManager : Singleton<AppManager> {
         {
             pointer = Instantiate(pointerPrefab);
             pointer.name = "Pointer";
+            pointer.SetActive(false);
+            pointer.SetActive(true);
         }
         else
         {
@@ -131,7 +136,11 @@ public class AppManager : Singleton<AppManager> {
 
     public void StopDrawing()
     {
-        pointer.SetActive(false);
+        //pointer.SetActive(false);
+        if (pointer != null)
+        {
+            Destroy(pointer);
+        }
     }
     
     public void SaveTrajectoty()

@@ -94,6 +94,7 @@ public class MyMenuContoler :  Singleton<MyMenuContoler>
         {
             AppManager.Instance.ClearSelecredRobot();
         }
+        AppManager.Instance.StopDrawing();
     }
 
     public void Move()
@@ -171,12 +172,9 @@ public class MyMenuContoler :  Singleton<MyMenuContoler>
     
     public void AddPoint()
     {
-        if (AppManager.Instance.SelectedRobot != null)
-        {
-            //SelectedRobot.SendMessage("CreatePoint");
-
-            TrajectoryData.SendMessage("CreatePoint");
-        }
+        
+        TrajectoryData.SendMessage("CreateMainPoint");
+       
     }
 
     public void CreateTrajectory()
@@ -232,7 +230,7 @@ public class MyMenuContoler :  Singleton<MyMenuContoler>
 
     public void DrawTrajectory()
     {
-        /*
+        
         if (!DrawingIsRuning)
         {
             AppManager.Instance.DrawTrajectory();
@@ -245,8 +243,8 @@ public class MyMenuContoler :  Singleton<MyMenuContoler>
             DrawingIsRuning = false;
             //change label
         }
-        */
-        AppManager.Instance.DrawTrajectory();
+        
+        //AppManager.Instance.DrawTrajectory();
         
     }
 

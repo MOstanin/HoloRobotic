@@ -12,7 +12,7 @@ public abstract class RobotControll : MonoBehaviour, IInputClickHandler, IRobot 
     public GameObject InfoTable;
     protected GameObject currentInfoTable;
 
-    private ArrayList Trajectory; 
+    private List<GameObject> Trajectory; 
 
     //q is goal state
     protected float[] q;
@@ -149,7 +149,7 @@ public abstract class RobotControll : MonoBehaviour, IInputClickHandler, IRobot 
                         {
 
 
-                            Transform ballTransform = ((GameObject)Trajectory[PointNum]).transform;
+                            Transform ballTransform = Trajectory[PointNum].transform;
                             goalPos = transform.InverseTransformPoint(ballTransform.position) * 1000;
                             goalOri.x = -(transform.eulerAngles.x - ballTransform.eulerAngles.x) * Mathf.PI / 180;
                             goalOri.y = -(transform.eulerAngles.y - ballTransform.eulerAngles.y) * Mathf.PI / 180;
@@ -249,8 +249,6 @@ public abstract class RobotControll : MonoBehaviour, IInputClickHandler, IRobot 
 
     public void StartMoving()
     {
-        
-
         Trajectory = TrajectoryData.Instance.GetTrajectory();
 
         if (Trajectory != null)
@@ -258,14 +256,13 @@ public abstract class RobotControll : MonoBehaviour, IInputClickHandler, IRobot 
             PointNum = 0;
             state = State.MoveTrajectory;
 
-            Transform ballTransform = ((GameObject)Trajectory[PointNum]).transform;
+            Transform ballTransform = Trajectory[PointNum].transform;
             goalPos = transform.InverseTransformPoint(ballTransform.position) * 1000;
             goalOri.x = -(transform.eulerAngles.x - ballTransform.eulerAngles.x) * Mathf.PI / 180;
             goalOri.y = -(transform.eulerAngles.y - ballTransform.eulerAngles.y) * Mathf.PI / 180;
             goalOri.z = -(transform.eulerAngles.z - ballTransform.eulerAngles.z) * Mathf.PI / 180;
 
             q = InversKin(goalPos, goalOri, q);
-
         }
     }
     

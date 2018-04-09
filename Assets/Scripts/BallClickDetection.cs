@@ -15,4 +15,9 @@ public class BallClickDetection : MonoBehaviour,IInputClickHandler {
         }
         
     }
+
+    public GameObject GetParentBall()
+    {
+        return parent;
+    }
 }

@@ -5,46 +5,61 @@ using HoloToolkit.Unity;
 
 public class TrajectoryData : Singleton<TrajectoryData>
 {
-
+    public Trajectory trajectory;
     public GameObject ball;
-    private ArrayList Trajectory;
-    private ArrayList TrajectoriesMass;
+    private List<GameObject> PathP2P;
+    private List<Trajectory> TrajectoriesMass;
 
     public void AddPoint(GameObject point)
     {
-        if (Trajectory != null)
+        if (PathP2P != null)
         {
-            Trajectory.Add(point);
-
+            PathP2P.Add(point);
+        }
+        else
+        {
+            PathP2P = new List<GameObject>();
+            PathP2P.Add(point);
         }
     }
 
-    public void CreatePoint()
+    public void AddP2PTraject(GameObject ball)
+    {
+        trajectory.AddPoint2PointTrajectory(ball, PathP2P);
+        PathP2P.Clear();
+    }
+
+    public void CreateMainPoint()
     {
         GameObject ball = Instantiate(this.ball,this.transform);
-        //ball.transform.Translate(new Vector3(0.1f, 0.1f, 0.1f));
-        ball.SendMessage("StartTranslation");
+        ball.name = "Ball";
 
-        if (Trajectory != null)
+        if (trajectory != null)
         {
-            Trajectory.Add(ball);
-            
-        }
-    }
-    public void CreateTrajectory()
-    {
-        if (Trajectory != null)
-        {
-            ClearTraject();
+            trajectory.AddPoint(ball);
 
         }
         else
         {
-            Trajectory = new ArrayList();
+            trajectory = new Trajectory(ball);
+        }
+    }
+    public void CreateTrajectory()
+    {
+        if (trajectory != null)
+        {
+            trajectory.Destroy();
+            trajectory = new Trajectory();
+            //TrajectoriesMass.Add(trajectory);
+        }
+        else
+        {
+            
+            trajectory = new Trajectory();
         }
     }
 
-    public ArrayList GetTrajectory()
+    public List<GameObject> GetTrajectory()
     {
         /*
         if (TrajectoriesMass == null)
@@ -54,34 +69,21 @@ public class TrajectoryData : Singleton<TrajectoryData>
         }
         return (ArrayList)TrajectoriesMass[TrajectoriesMass.Count-1];
         */
-        return Trajectory;
+        return trajectory.getTrajectoty();
     }
 
     public void SaveTrajecroty()
     {
         if (TrajectoriesMass != null)
         {
-            TrajectoriesMass.Add(Trajectory);
+            TrajectoriesMass.Add(trajectory);
             //ClearTraject();
         }
         else
         {
-            TrajectoriesMass = new ArrayList();
-            TrajectoriesMass.Add(Trajectory);
+            TrajectoriesMass = new List<Trajectory>();
+            TrajectoriesMass.Add(trajectory);
             //ClearTraject();
-        }
-    }
-
-    private void ClearTraject()
-    {
-        if (Trajectory != null)
-        {
-            for (int i = 0; i < Trajectory.Count; i++)
-            {
-                Destroy((GameObject)Trajectory[i]);
-            }
-            Trajectory.Clear();
-
         }
     }
 }

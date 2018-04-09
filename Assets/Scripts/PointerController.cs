@@ -7,31 +7,34 @@ using UnityEngine.XR.WSA.Input;
 using System;
 
 [RequireComponent(typeof(Interpolator))]
-public class PointerController : MonoBehaviour {
-
+public class PointerController : MonoBehaviour
+{
     private Interpolator interpolator;
     Vector3 offset;
-    public GameObject ball;
+    Vector3 oldPos;
     public GameObject prim;
+    private GameObject startedBall;
 
-    enum State { NoDrawing,  FirstClick, Drawing, SecondClick, Destroying};
+    enum State { NoDrawing, FirstClick, Drawing, SecondClick, Destroying };
     State state;
 
     // Use this for initialization
-    void Start () {
+    void Start()
+    {
         interpolator = gameObject.EnsureComponent<Interpolator>();
+        state = State.FirstClick;
 
         offset = new Vector3(0, 0, 0);
         InteractionManager.InteractionSourceLost += InteractionManager_SourceLost;
         InteractionManager.InteractionSourceDetected += InteractionManager_SourceDetected;
         InteractionManager.InteractionSourceUpdated += InteractionManager_SourceUpdated;
-        InteractionManager.InteractionSourcePressed += InteractionManager_SourcePressed;
+        //InteractionManager.InteractionSourcePressed += InteractionManager_SourcePressed;
     }
     private void OnEnable()
     {
-        state = State.NoDrawing;
-        
+        state = State.FirstClick;
     }
+    /*
 
     private void InteractionManager_SourcePressed(InteractionSourcePressedEventArgs obj)
     {
@@ -44,7 +47,7 @@ public class PointerController : MonoBehaviour {
                     {
                         state = State.FirstClick;
                     }
-                    
+
                     break;
                 }
             case State.FirstClick:
@@ -61,30 +64,29 @@ public class PointerController : MonoBehaviour {
                 }
         }
     }
-
+    */
     private void InteractionManager_SourceUpdated(InteractionSourceUpdatedEventArgs obj)
     {
         if (state != State.NoDrawing)
         {
-            
+
             Vector3 pos = new Vector3(0, 1, 0);
             if (obj.state.source.kind == InteractionSourceKind.Hand)
             {
                 obj.state.sourcePose.TryGetPosition(out pos);
-
                 interpolator.SetTargetPosition(pos + offset);
 
-                if (state == State.Drawing)
+                Vector3 del = oldPos - transform.position;
+                if (state == State.Drawing && del.sqrMagnitude > 0.001)
                 {
-
                     GameObject point = Instantiate(prim, TrajectoryData.Instance.transform);
 
                     Vector3 a = transform.position;
                     point.transform.position = a;
                     point.transform.Rotate(0, 0, -90);
                     TrajectoryData.Instance.AddPoint(point);
+                    oldPos = a;
                 }
-
             }
         }
     }
@@ -96,7 +98,8 @@ public class PointerController : MonoBehaviour {
             if (obj.state.source.kind == InteractionSourceKind.Hand)
             {
                 offset = Camera.main.transform.forward / 2;
-
+                oldPos = gameObject.transform.position;
+                //state = State.FirstClick;
             }
         }
     }
@@ -109,9 +112,34 @@ public class PointerController : MonoBehaviour {
         }
     }
 
-    // Update is called once per frame
-    void Update () {
-		
-	}
-    
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.tag == "ball" && other.gameObject.GetComponent<BallClickDetection>().GetParentBall() != startedBall)
+        {
+            switch (state) {
+                case State.Drawing:
+                    {
+                        state = State.NoDrawing;
+                        TrajectoryData.Instance.AddP2PTraject(startedBall);
+                        startedBall = null;
+                        AppManager.Instance.StopDrawing();
+                        break;
+                    }
+                case State.FirstClick:
+                    {
+                        state = State.Drawing;
+                        startedBall = other.gameObject.GetComponent<BallClickDetection>().GetParentBall();
+                        break;
+                    }
+            }
+        }
+    }
+
+    private void OnDestroy()
+    {
+        InteractionManager.InteractionSourceLost -= InteractionManager_SourceLost;
+        InteractionManager.InteractionSourceDetected -= InteractionManager_SourceDetected;
+        InteractionManager.InteractionSourceUpdated -= InteractionManager_SourceUpdated;
+    }
+
 }
