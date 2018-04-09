@@ -4,15 +4,21 @@ using UnityEngine;
 using HoloToolkit.Unity.InputModule;
 using System;
 
-public class MyRotation : MonoBehaviour, INavigationHandler
+public class MyRotation : MonoBehaviour, IManipulationHandler
 {
-    public float RotationSensitivity = 5.0f;
+    public float RotationSensitivity = 1.0f;
 
-    private float rotationFactor = 0.0f;
-    private Vector3 navigationDelta = Vector3.zero;
- 
+    private float rotationFactorX = 0.0f;
+    private float rotationFactorY = 0.0f;
+    private float rotationFactorZ = 0.0f;
 
-    public bool flag;
+    private Vector3 Delta = Vector3.zero;
+
+    // For ball only
+    [SerializeField]
+    private GameObject parent;
+
+    private bool flag;
 
 
     // Use this for initialization
@@ -42,39 +48,50 @@ public class MyRotation : MonoBehaviour, INavigationHandler
 
     private void PerformRotation()
     {
-        if (navigationDelta == Vector3.zero)
+        if (Delta == Vector3.zero)
         {
             return;
         }
 
         // This will help control the amount of rotation.
         // Taking the delta along the horizontal axis movement.
-        rotationFactor = navigationDelta.x * RotationSensitivity;
+        rotationFactorX = Delta.x * RotationSensitivity;
+        rotationFactorY = Delta.y * RotationSensitivity;
+        rotationFactorZ = Delta.z * RotationSensitivity;
 
-        // Rotate object along the Y axis using.
-        transform.Rotate(new Vector3(0, -1 * rotationFactor, 0));
+        if (parent == null)
+        {
+            // Rotate object along the Y axis using.
+            transform.Rotate(new Vector3(0, -1 * rotationFactorX, 0));
+        }
+        else
+        {
+            parent.transform.Rotate(new Vector3(0, -1 * rotationFactorX, 0));
+            parent.transform.Rotate(new Vector3(-1*rotationFactorZ, 0, 0));
+            parent.transform.Rotate(new Vector3(0, 0, 1 * rotationFactorY));
+        }
     }
 
-    public void OnNavigationCanceled(NavigationEventData eventData)
+    public void OnManipulationCanceled(ManipulationEventData eventData)
     {
-        navigationDelta = Vector3.zero;
+        Delta = Vector3.zero;
         InputManager.Instance.OverrideFocusedObject = null;
     }
 
-    public void OnNavigationCompleted(NavigationEventData eventData)
+    public void OnManipulationCompleted(ManipulationEventData eventData)
     {
-        navigationDelta = Vector3.zero;
+        Delta = Vector3.zero;
         InputManager.Instance.OverrideFocusedObject = null;
     }
 
-    public void OnNavigationStarted(NavigationEventData eventData)
+    public void OnManipulationStarted(ManipulationEventData eventData)
     {
         InputManager.Instance.OverrideFocusedObject = gameObject;
-        navigationDelta = eventData.NormalizedOffset;
+        Delta = eventData.CumulativeDelta;
     }
 
-    public void OnNavigationUpdated(NavigationEventData eventData)
+    public void OnManipulationUpdated(ManipulationEventData eventData)
     {
-        navigationDelta = eventData.NormalizedOffset;
+        Delta = eventData.CumulativeDelta;
     }
 }

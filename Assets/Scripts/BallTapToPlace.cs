@@ -16,7 +16,7 @@ using HoloToolkit.Unity;
 /// </summary>
 [RequireComponent(typeof(Collider))]
 [RequireComponent(typeof(Interpolator))]
-public class BallTapToPlace : MonoBehaviour, IInputClickHandler
+public class BallTapToPlace : MonoBehaviour, IInputHandler
 {
     [Tooltip("Distance from camera to keep the object while placing it.")]
     public float DefaultGazeDistance = 2.0f;
@@ -53,6 +53,7 @@ public class BallTapToPlace : MonoBehaviour, IInputClickHandler
 
     protected virtual void Start()
     {
+        AllowPlacingFlag = false;
         if (PlaceParentOnTap)
         {
             ParentGameObjectToPlace = GetParentToPlace();
@@ -135,12 +136,35 @@ public class BallTapToPlace : MonoBehaviour, IInputClickHandler
         interpolator.SetTargetRotation(Quaternion.Euler(CursorRot));
     }
 
-    public virtual void OnInputClicked(InputClickedEventData eventData)
+    bool AllowPlacingFlag;
+    public void AllowPlacing()
     {
-        // On each tap gesture, toggle whether the user is in placing mode.
-        IsBeingPlaced = !IsBeingPlaced;
+        AllowPlacingFlag = true;
+        IsBeingPlaced = true;
         HandlePlacement();
-        eventData.Use();
+    }
+
+    public void StopPlacingCall()
+    {
+        AllowPlacingFlag = false;
+        IsBeingPlaced = false;
+        HandlePlacement();
+    }
+
+    
+    public virtual void OnInputDown(InputEventData eventData)
+    {
+        if (AllowPlacingFlag)
+        {// On each tap gesture, toggle whether the user is in placing mode.
+            IsBeingPlaced = false;
+            AllowPlacingFlag = false;
+            HandlePlacement();
+            eventData.Use();
+        }
+    }
+    public virtual void OnInputUp(InputEventData eventData)
+    {
+        
     }
 
     private void HandlePlacement()

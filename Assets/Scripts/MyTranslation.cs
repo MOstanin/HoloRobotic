@@ -15,21 +15,16 @@ public class MyTranslation : MonoBehaviour, INavigationHandler
     private float translationFactorZ = 0.0f;
 
     private Vector3 navigationDelta = Vector3.zero;
+
+    [SerializeField]
+    private GameObject parent;
     
 
-    public bool flag;
+    private bool flag;
 
     void Start()
     {
-        if (this.gameObject.tag == "ball")
-        {
-            flag = true;
-        }
-        else
-        {
-            flag = false;
-
-        }
+        flag = false;
     }
 
     void Update()
@@ -61,7 +56,14 @@ public class MyTranslation : MonoBehaviour, INavigationHandler
         translationFactorZ = navigationDelta.z * TranslationSensitivity;
 
 
-        transform.Translate(new Vector3(translationFactorX, translationFactorY, translationFactorZ),Space.World);
+        if (parent == null)
+        {
+            transform.Translate(new Vector3(translationFactorX, translationFactorY, translationFactorZ), Space.World);
+        }
+        else
+        {
+            parent.transform.Translate(new Vector3(translationFactorX, translationFactorY, translationFactorZ), Space.World);
+        }
     }
 
     public void OnNavigationCanceled(NavigationEventData eventData)
