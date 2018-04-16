@@ -253,4 +253,15 @@ public class MyMenuContoler :  Singleton<MyMenuContoler>
         AppManager.Instance.SaveTrajectoty();
         Back();
     }
+
+    public void DrawLine()
+    {
+        AppManager.Instance.DrawLine();
+    }
+
+    public void DrawArc()
+    {
+        AppManager.Instance.DrawArc();
+    }
+
 }

@@ -11,9 +11,14 @@ public class BallClickDetection : MonoBehaviour,IInputClickHandler {
     {
         if (eventData.selectedObject == gameObject)
         {
+            if (AppManager.Instance.AccessToClick)
+            {
+                AppManager.Instance.BallClick(parent);
+                return;
+                
+            }
             parent.SendMessage("ClickOnBall");
         }
-        
     }
 
     public GameObject GetParentBall()

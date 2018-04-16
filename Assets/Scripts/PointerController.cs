@@ -77,14 +77,14 @@ public class PointerController : MonoBehaviour
                 interpolator.SetTargetPosition(pos + offset);
 
                 Vector3 del = oldPos - transform.position;
-                if (state == State.Drawing && del.sqrMagnitude > 0.001)
+                if (state == State.Drawing && del.magnitude > 0.05)
                 {
                     GameObject point = Instantiate(prim, TrajectoryData.Instance.transform);
 
                     Vector3 a = transform.position;
                     point.transform.position = a;
-                    point.transform.Rotate(0, 0, -90);
-                    TrajectoryData.Instance.AddPoint(point);
+                    //point.transform.Rotate(0, 0, -90);
+                    TrajectoryData.Instance.AddViaPoint(point);
                     oldPos = a;
                 }
             }

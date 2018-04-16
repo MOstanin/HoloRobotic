@@ -7,28 +7,35 @@ public class Trajectory
 {
     private List<GameObject> Points;
     private List<GameObject> FinalTrajectory;
+    int n;
 
     public Trajectory()
     {
-
+        n = 0;
     }
     public Trajectory(GameObject firtsBall)
     {
         Points = new List<GameObject>();
         Points.Add(firtsBall);
-
+        
+    }
+    public int NumMainPoint()
+    {
+        return n;
     }
 
-    public void AddPoint(GameObject ball)
+    public void AddMainPoint(GameObject ball)
     {
         if (Points != null)
         {
             Points.Add(ball);
+            n = n + 1;
         }
         else
         {
             Points = new List<GameObject>();
             Points.Add(ball);
+            n = 1;
         }
     }
 
@@ -53,10 +60,29 @@ public class Trajectory
         return Points;
     }
 
-    internal void Destroy()
+    public void Destroy()
     {
         foreach (GameObject point in Points){
             GameObject.Destroy(point);
         }
+    }
+
+    private void Destroy(List<GameObject> removedList)
+    {
+        foreach (GameObject point in removedList)
+        {
+            GameObject.Destroy(point);
+        }
+    }
+
+    public void DeleteSegments(GameObject ball1, GameObject ball2)
+    {
+        int n1 = Points.IndexOf(ball1);
+        int n2 = Points.IndexOf(ball2);
+        
+        List<GameObject> removedList = Points.GetRange(n1 + 1, n2 - n1 - 1);
+        Destroy(removedList);
+
+        Points.RemoveRange(n1+1, n2 - n1 - 1);
     }
 }

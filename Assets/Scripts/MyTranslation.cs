@@ -6,15 +6,15 @@ using HoloToolkit.Unity.InputModule;
 
 
 
-public class MyTranslation : MonoBehaviour, INavigationHandler
+public class MyTranslation : MonoBehaviour, IManipulationHandler
 {
-    public float TranslationSensitivity = 0.003f;
+    public float TranslationSensitivity = 0.3f;
 
     private float translationFactorX = 0.0f;
     private float translationFactorY = 0.0f;
     private float translationFactorZ = 0.0f;
 
-    private Vector3 navigationDelta = Vector3.zero;
+    private Vector3 Delta = Vector3.zero;
 
     [SerializeField]
     private GameObject parent;
@@ -46,14 +46,14 @@ public class MyTranslation : MonoBehaviour, INavigationHandler
 
     private void PerformRotation()
     {
-        if (navigationDelta == Vector3.zero)
+        if (Delta == Vector3.zero)
         {
             return;
         }
         
-        translationFactorX = navigationDelta.x * TranslationSensitivity;
-        translationFactorY = navigationDelta.y * TranslationSensitivity;
-        translationFactorZ = navigationDelta.z * TranslationSensitivity;
+        translationFactorX = Delta.x * TranslationSensitivity;
+        translationFactorY = Delta.y * TranslationSensitivity;
+        translationFactorZ = Delta.z * TranslationSensitivity;
 
 
         if (parent == null)
@@ -66,26 +66,26 @@ public class MyTranslation : MonoBehaviour, INavigationHandler
         }
     }
 
-    public void OnNavigationCanceled(NavigationEventData eventData)
+    public void OnManipulationCanceled(ManipulationEventData eventData)
     {
-        navigationDelta = Vector3.zero;
+        Delta = Vector3.zero;
         InputManager.Instance.OverrideFocusedObject = null;
     }
 
-    public void OnNavigationCompleted(NavigationEventData eventData)
+    public void OnManipulationCompleted(ManipulationEventData eventData)
     {
-        navigationDelta = Vector3.zero;
+        Delta = Vector3.zero;
         InputManager.Instance.OverrideFocusedObject = null;
     }
 
-    public void OnNavigationStarted(NavigationEventData eventData)
+    public void OnManipulationStarted(ManipulationEventData eventData)
     {
         InputManager.Instance.OverrideFocusedObject = gameObject;
-        navigationDelta = eventData.NormalizedOffset;
+        Delta = eventData.CumulativeDelta;
     }
 
-    public void OnNavigationUpdated(NavigationEventData eventData)
+    public void OnManipulationUpdated(ManipulationEventData eventData)
     {
-        navigationDelta = eventData.NormalizedOffset;
+        Delta = eventData.CumulativeDelta;
     }
 }
