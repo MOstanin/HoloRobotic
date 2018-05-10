@@ -15,12 +15,16 @@ public class AppManager : Singleton<AppManager> {
     [SerializeField]
     private GameObject pointerPrefab;
     private GameObject pointer;
-    
+
+    [SerializeField]
+    private GameObject scalePrefab;
+    private GameObject scale;
+
     private LinkedList<GameObject> RobotMass;
 
     public GameObject SelectedRobot { private set; get; }
 
-    enum State {Line1, Line2, Acr1, Acr2, NoAction };
+    enum State {Line1, Line2, Acr1, Acr2, Delete1, Delete2, Draw, NoAction, Scale };
     State state;
 
     public bool AccessToClick;
@@ -31,7 +35,6 @@ public class AppManager : Singleton<AppManager> {
         AccessToClick = false; ;
         
     }
-
 
     public void ClearSelecredRobot()
     {
@@ -203,6 +206,22 @@ public class AppManager : Singleton<AppManager> {
             TrajectoryData.Instance.DrawCircle(ball1, ball2);
             ball1 = null;
             ball2 = null;
+            state = State.Draw;
+            AccessToClick = false;
+        }
+        else if (state == State.Delete1)
+        {
+            ball1 = ball;
+            state = State.Delete2;
+
+        }
+        else if (state == State.Delete2)
+        {
+            ball2 = ball;
+            
+            TrajectoryData.Instance.DeleteSegment(ball1, ball2);
+            ball1 = null;
+            ball2 = null;
             state = State.NoAction;
             AccessToClick = false;
         }
@@ -213,7 +232,37 @@ public class AppManager : Singleton<AppManager> {
 
     public void DrawArc()
     {
+        if (state == State.Draw)
+        {
+            state = State.NoAction;
+            TrajectoryData.Instance.DrawCircle();
+            return;
+        }
         state = State.Acr1;
-        AccessToClick = true; ;
+        AccessToClick = true;
+    }
+
+    public void DeleteSegment()
+    {
+        state = State.Delete1;
+        AccessToClick = true;
+    }
+
+    public void Scale()
+    {
+        if (state != State.Scale)
+        {
+            state = State.Scale;
+            scale = Instantiate(scalePrefab);
+        }
+        else
+        {
+            state = State.NoAction;
+            if (scale != null)
+            {
+                Destroy(scale);
+            }
+        }
+
     }
 }

@@ -264,4 +264,13 @@ public class MyMenuContoler :  Singleton<MyMenuContoler>
         AppManager.Instance.DrawArc();
     }
 
+    public void DeleteSegment()
+    {
+        AppManager.Instance.DeleteSegment();
+    }
+
+    public void Scale()
+    {
+        AppManager.Instance.Scale();
+    }
 }

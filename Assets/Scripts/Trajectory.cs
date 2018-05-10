@@ -44,11 +44,12 @@ public class Trajectory
         int n = Points.IndexOf(Ball1);
         GameObject Ball2 = Points[n + 1];
         Vector3 ori1 = Ball1.transform.eulerAngles;
-        Vector3 delta_ori = Ball2.transform.eulerAngles - Ball1.transform.eulerAngles;
-
+        float delta_ori = Quaternion.Angle(Ball1.transform.rotation,Ball2.transform.rotation);
+        
         for (int i = 0; i < path.Count; i++)
         {
-            path[i].transform.eulerAngles = Ball1.transform.eulerAngles + delta_ori * i / path.Count;
+            //path[i].transform.eulerAngles = Ball1.transform.eulerAngles + delta_ori * i / path.Count;
+            path[i].transform.rotation = Quaternion.RotateTowards(Ball1.transform.rotation, Ball2.transform.rotation, delta_ori * i / path.Count);
         }
 
         Points.InsertRange(n+1, path);

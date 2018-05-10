@@ -4,44 +4,25 @@ using UnityEngine;
 using HoloToolkit.Unity.InputModule;
 
 
+public class CubTranslation : MonoBehaviour, IManipulationHandler{
 
+    [SerializeField]
+    private GameObject parent;
 
-public class MyTranslation : MonoBehaviour, IManipulationHandler
-{
-    public float TranslationSensitivity;
-
-    private float translationFactorX = 0.0f;
-    private float translationFactorY = 0.0f;
-    private float translationFactorZ = 0.0f;
+    //public float TranslationSensitivity;
 
     private Vector3 Delta = Vector3.zero;
     private Vector3 Offset = Vector3.zero;
 
-    [SerializeField]
-    private GameObject parent;
-    
+    // Use this for initialization
+    void Start () {
+		
+	}
+	
+	// Update is called once per frame
+	void Update () {
+        PerformTranslation();
 
-    public bool flag;
-
-    void Start()
-    {
-    }
-
-    void Update()
-    {
-        if (flag)
-        {
-            PerformTranslation();
-        }
-    }
-
-    public void StartTranslation()
-    {
-        flag = true;
-    }
-    public void StopTranslation()
-    {
-        flag = false;
     }
 
     private void PerformTranslation()
@@ -50,22 +31,17 @@ public class MyTranslation : MonoBehaviour, IManipulationHandler
         {
             return;
         }
-        
-        translationFactorX = Delta.x * TranslationSensitivity;
-        translationFactorY = Delta.y * TranslationSensitivity;
-        translationFactorZ = Delta.z * TranslationSensitivity;
-
 
         if (parent == null)
         {
             //transform.Translate(new Vector3(translationFactorX, translationFactorY, translationFactorZ), Space.World);
-            transform.position = Offset + new Vector3(translationFactorX, translationFactorY, translationFactorZ);
+            transform.position = Offset + Delta;
         }
         else
         {
             //parent.transform.Translate(new Vector3(translationFactorX, translationFactorY, translationFactorZ), Space.World);
-            parent.transform.position = Offset + new Vector3(translationFactorX, translationFactorY, translationFactorZ);
-            Debug.Log(Delta.magnitude.ToString());
+            parent.transform.position = Offset + Delta;
+            //Debug.Log(Delta.magnitude.ToString());
         }
     }
 
@@ -79,6 +55,11 @@ public class MyTranslation : MonoBehaviour, IManipulationHandler
     {
         Delta = Vector3.zero;
         InputManager.Instance.OverrideFocusedObject = null;
+
+        if (parent.name == "CubeSmall")
+        {
+            parent.SendMessage("UpdateScale");
+        }
     }
 
     public void OnManipulationStarted(ManipulationEventData eventData)

@@ -46,8 +46,9 @@ public class TrajectoryData : Singleton<TrajectoryData>
             trajectory = new Trajectory(ball);
         }
         TextMesh text = ball.GetComponentInChildren<TextMesh>();
-        text.text = (trajectory.NumMainPoint() + 1).ToString();
+        text.text = (trajectory.NumMainPoint()).ToString();
     }
+
     public void CreateTrajectory()
     {
         if (trajectory != null)
@@ -105,7 +106,7 @@ public class TrajectoryData : Singleton<TrajectoryData>
         Vector3 p1 = ball1.transform.position;
         Vector3 p2 = ball2.transform.position;
 
-        float del = 0.02f;
+        float del = 0.01f;
         int n = (int)((p2 - p1).magnitude / del);
 
         for (int i = 1; i < n - 1; i++)
@@ -120,6 +121,13 @@ public class TrajectoryData : Singleton<TrajectoryData>
 
     public void DrawCircle(GameObject ball1, GameObject ball2, GameObject ball3)
     {
+        if (ball2 == null)
+        {
+            Destroy(this.point);
+            point = null;
+            DrawCircle(ball1, ball3);
+            return;
+        }
         if (PathP2P == null)
         {
             PathP2P = new List<GameObject>();
@@ -190,7 +198,8 @@ public class TrajectoryData : Singleton<TrajectoryData>
             { (p1-p3).y, -(p1-p3).x, 0}
         }) * y2D_.Transpose() / (Mathf.Sqrt(y2D_[0, 0] * y2D_[0, 0] + y2D_[0, 1] * y2D_[0, 1] + y2D_[0, 2] * y2D_[0, 2]));
         x3_ = x3_.Transpose();
-
+        
+        
         float x3 = Mathf.Sqrt(x3_[0, 0] * x3_[0, 0] + x3_[0, 1] * x3_[0, 1] + x3_[0, 2] * x3_[0, 2]);
 
         Matrix<float> y3_ = Matrix<float>.Build.DenseOfArray(new float[,] {
@@ -200,8 +209,17 @@ public class TrajectoryData : Singleton<TrajectoryData>
         }) * x2D_.Transpose() / (Mathf.Sqrt(x2D_[0, 0] * x2D_[0, 0] + x2D_[0, 1] * x2D_[0, 1] + x2D_[0, 2] * x2D_[0, 2]));
         y3_ = y3_.Transpose();
 
-        float y3 = Mathf.Sqrt(y3_[0, 0] * y3_[0, 0] + y3_[0, 1] * y3_[0, 1] + y3_[0, 2] * y3_[0, 2]);
-
+        float y3_sing = ((p1 - p3).x * y2D_[0, 0] + (p1 - p3).x * y2D_[0, 0] + (p1 - p3).x * y2D_[0, 0] )/
+            (Mathf.Sqrt(y2D_[0, 0] * y2D_[0, 0] + y2D_[0, 1] * y2D_[0, 1] + y2D_[0, 2] * y2D_[0, 2])*(p1-p3).magnitude);
+        float y3;
+        if (y3_sing > 0)
+        {
+            y3 = -Mathf.Sqrt(y3_[0, 0] * y3_[0, 0] + y3_[0, 1] * y3_[0, 1] + y3_[0, 2] * y3_[0, 2]);
+        }
+        else
+        {
+            y3 = Mathf.Sqrt(y3_[0, 0] * y3_[0, 0] + y3_[0, 1] * y3_[0, 1] + y3_[0, 2] * y3_[0, 2]);
+        }
         //float test2 = Mathf.Sqrt(x3 * x3 + y3 * y3);
         float x1 = 0, y1 = 0;
         float x2 = (p2 - p1).magnitude, y2 = 0;
@@ -242,24 +260,36 @@ public class TrajectoryData : Singleton<TrajectoryData>
         }
 
         AddP2PTraject(ball1);
-
+        Destroy(this.point);
+        this.point = null;
     }
 
     public void DrawCircle(GameObject ball1, GameObject ball3)
     {
         GameObject point = Instantiate(viaPoint, TrajectoryData.Instance.transform);
         point.transform.position = ball1.transform.position + (ball3.transform.position - ball1.transform.position)/2  + new Vector3(0, 0.1f, 0.1f);
-        DrawCircle(ball1, point, ball3);
-        Destroy(point);
+        //DrawCircle(ball1, point, ball3);
+        //Destroy(point);
+        this.ball1 = ball1;
+        this.ball3 = ball3;
+        this.point = point;
     }
 
-    private Vector3 ToRight(Vector3 v)
+    public void DrawCircle()
     {
-        float s = v.y;
-        v.y = v.z;
-        v.z = s;
-
-        return v;
+        DrawCircle(ball1, point, ball3);
+        this.ball1 = null;
+        this.ball3 = null;
+        this.point = null;
     }
+    
+    GameObject ball1;
+    GameObject ball3;
+    GameObject point;
 
+
+    public void DeleteSegment(GameObject ball1, GameObject ball2)
+    {
+        trajectory.DeleteSegments(ball1, ball2);
+    }
 }

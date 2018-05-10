@@ -25,7 +25,7 @@ public abstract class RobotControll : MonoBehaviour, IInputClickHandler, IRobot 
 
     State state;
 
-    private float speed = 0.4f;
+    private float speed = 0.3f;
 
     public void OnInputClicked(InputClickedEventData eventData)
     {
@@ -191,21 +191,22 @@ public abstract class RobotControll : MonoBehaviour, IInputClickHandler, IRobot 
         float minDel = Mathf.Min(del_q);
 
         float s = Mathf.Max(Mathf.Abs(maxDel), Mathf.Abs(minDel));
+        float t = s / speed;
 
-        if (s > speed * Time.deltaTime)
+        for (int i = 0; i < q.Length; i++)
         {
-            for (int i = 0; i < q.Length; i++)
+            float v = del_q[i] / t;
+
+            if (t > Time.deltaTime)
             {
-                current_q[i] = current_q[i] + speed * Time.deltaTime * del_q[i] / s;
+                current_q[i] = current_q[i] + v * Time.deltaTime;
             }
-        }
-        else
-        {
-            for (int i = 0; i < q.Length; i++)
+            else
             {
                 current_q[i] = current_q[i] + del_q[i];
             }
-        }
+        } 
+       
         SendState(current_q);
 
     }

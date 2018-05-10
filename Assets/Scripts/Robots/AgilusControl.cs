@@ -114,11 +114,11 @@ public class AgilusControl : RobotControll{
         float q1 = Mathf.Atan2(T0[1, 3], T0[0, 3]);
         float a = Mathf.Sqrt(T0[1, 3] * T0[1, 3] + T0[0, 3] * T0[0, 3])-25;
         float b = T0[2, 3] - 400;
-        float c3 = (a * a + b * b - 560 * 560 - 516 * 516) / (2 * 560 * 516);
+        float c3 = (a * a + b * b - 560 * 560 - 516.2f * 516.2f) / (2 * 560 * 516.2f);
         float s3 = Mathf.Sqrt(1 - c3 * c3);
         float del_q3 = Mathf.Atan2(515, 35);
         float q3 = Mathf.Atan2(s3, c3) - del_q3;
-        float q2 = -Mathf.Atan2(516 * Mathf.Sin(q3 + del_q3), (560 + 516 * Mathf.Cos(q3 + del_q3))) + Mathf.Atan2(a, b);
+        float q2 = -Mathf.Atan2(516.2f * Mathf.Sin(q3 + del_q3), (560 + 516.2f * Mathf.Cos(q3 + del_q3))) + Mathf.Atan2(a, b);
 
         Matrix<float> T123 = MathOperations.MatrixTz4(400) * MathOperations.MatrixRz4(q1) * MathOperations.MatrixTx4(25) *
             MathOperations.MatrixRy4(q2 - Mathf.PI / 2) * MathOperations.MatrixTx4(560) * MathOperations.MatrixRy4(q3 + Mathf.Atan2(515, 35)) *

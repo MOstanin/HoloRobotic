@@ -11,6 +11,7 @@ public class BallClickDetection : MonoBehaviour,IInputClickHandler {
     {
         if (eventData.selectedObject == gameObject)
         {
+            parent.GetComponent<AudioSource>().Play();
             if (AppManager.Instance.AccessToClick)
             {
                 AppManager.Instance.BallClick(parent);
