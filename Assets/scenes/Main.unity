@@ -920,7 +920,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e52a46d278cdb38449703901cf3fec01, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  iiwa: {fileID: 1235190742431852, guid: 0292a367d9b12f140977ad82cf88f821, type: 2}
+  iiwa: {fileID: 1267935452887492, guid: 0292a367d9b12f140977ad82cf88f821, type: 2}
   Agilus: {fileID: 1965738605154914, guid: 4c387d456f00b3141aecba4dff5c4569, type: 2}
   pointerPrefab: {fileID: 1400109148657834, guid: ae2c987898783f04b89e5db991d7d0f3,
     type: 2}

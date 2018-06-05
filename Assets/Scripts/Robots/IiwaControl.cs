@@ -24,23 +24,28 @@ public class IiwaControl : RobotControll
 
     public override float[] InversKin(Matrix<float> Tgoal, float[] q0)
     {
-
-        //float[] q = new float[] { 0, 0, 0, 0, 0, 0, 0 };
+        //float[] q2 = ReadState();
+        q = new float[] { 0, 20 * Mathf.PI / 180, 0, -70 * Mathf.PI / 180, 0, 0, 0 };
         //Tgoal[1, 3] = -Tgoal[1, 3];
         //Tgoal[0, 3] = -Tgoal[0, 3];
-
-        Tgoal = Tgoal * MathOperations.MatrixRz4( Mathf.PI / 2) * MathOperations.MatrixRx4(Mathf.PI / 2);
+        //Tgoal = ForwardKin(q2);
+        
+        Tgoal = Tgoal * MathOperations.MatrixRy4( Mathf.PI / 2) ;
+        Debug.Log(Tgoal.ToString());
+        Matrix<float> end_effector_matrix = ForwardKin(q);
+        Debug.Log(end_effector_matrix.ToString());
         float diff_r = 0;
         float diif_o = 0;
         int c = 0;
         do
         {
-            Matrix<float> end_effector_matrix = ForwardKin(q);
+           end_effector_matrix = ForwardKin(q);
 
             float[] error = CalcErorr(Tgoal, end_effector_matrix);
 
             diff_r = error[0] * error[0] + error[1] * error[1] + error[2] * error[2];
             diif_o = error[3] * error[3] + error[4] * error[4] + error[5] * error[5];
+            
 
             Vector<float> del_q = Vector<float>.Build.DenseOfArray(new float[] { 0, 0, 0, 0, 0, 0, 0 });
             float[] del_q2 = new float[] { 0, 0, 0, 0, 0, 0, 0 };
@@ -52,11 +57,13 @@ public class IiwaControl : RobotControll
                 for (int i = 0; i < 7; i++)
                 {
                     q[i] = (i!=3)? (q[i] + del_q2[i] * 0.05f) : (q[i] - del_q2[i] * 0.05f);
+                    //q[i] = q[i] + del_q2[i] * 0.02f;
                 }
             }
+            
             if (c > 500)
             {
-                return new float[] { 0, 0, 0, 0, 0, 0, 0 };
+                return new float[] { 0, 20*Mathf.PI/180, 0, -70 * Mathf.PI / 180, 0, 0, 0 };
 
             }
             else
@@ -105,8 +112,7 @@ public class IiwaControl : RobotControll
         do
         {
             lim_exceeded = false;
-
-
+            
             Matrix<float> JW = jac * W;
             //Matrix<float> jac3 = JW.PseudoInverse();
             
@@ -122,7 +128,7 @@ public class IiwaControl : RobotControll
                 }
                 else
                 {
-                    S[i, i] = 1E10f;
+                    S[i, i] = 1000000000;
                 }
             }
 
@@ -401,7 +407,7 @@ public class IiwaControl : RobotControll
         return T;
     }
 
-    public override Matrix<float> ForwardKin(float[] q)
+    public override  Matrix<float> ForwardKin(float[] q)
     {
         Matrix<float> T = MathOperations.MatrixRz4(q[0]) * MathOperations.MatrixTz4(360) * MathOperations.MatrixRy4(q[1]) *
             MathOperations.MatrixRz4(q[2]) * MathOperations.MatrixTz4(420) * MathOperations.MatrixRy4(-q[3]) *
@@ -415,46 +421,51 @@ public class IiwaControl : RobotControll
     private Matrix<float> IIWAjacobian(float[] q)
     {
         Matrix<float> T = ForwardKin(q);
+        //q[3] = -q[3];
 
         T[0, 3] = 0;
         T[1, 3] = 0;
         T[2, 3] = 0;
+
         
+        Matrix<float> Tinv = T.Clone().Inverse();
+
+
 
         Matrix<float> T1 = MathOperations.Rdz(q[0]) * MathOperations.MatrixTz4(360) * MathOperations.MatrixRy4(q[1]) *
             MathOperations.MatrixRz4(q[2]) * MathOperations.MatrixTz4(420) * MathOperations.MatrixRy4(-q[3]) *
             MathOperations.MatrixRz4(q[4]) * MathOperations.MatrixTz4(400) * MathOperations.MatrixRy4(q[5]) *
-            MathOperations.MatrixRz4(q[6]) * MathOperations.MatrixTz4(130) * T.Transpose();
+            MathOperations.MatrixRz4(q[6]) * MathOperations.MatrixTz4(130) * Tinv;
 
         Matrix<float> T2 = MathOperations.MatrixRz4(q[0]) * MathOperations.MatrixTz4(360) * MathOperations.Rdy(q[1]) *
             MathOperations.MatrixRz4(q[2]) * MathOperations.MatrixTz4(420) * MathOperations.MatrixRy4(-q[3]) *
             MathOperations.MatrixRz4(q[4]) * MathOperations.MatrixTz4(400) * MathOperations.MatrixRy4(q[5]) *
-            MathOperations.MatrixRz4(q[6]) * MathOperations.MatrixTz4(130) * T.Transpose();
+            MathOperations.MatrixRz4(q[6]) * MathOperations.MatrixTz4(130) * Tinv;
 
         Matrix<float> T3 = MathOperations.MatrixRz4(q[0]) * MathOperations.MatrixTz4(360) * MathOperations.MatrixRy4(q[1]) *
             MathOperations.Rdz(q[2]) * MathOperations.MatrixTz4(420) * MathOperations.MatrixRy4(-q[3]) *
             MathOperations.MatrixRz4(q[4]) * MathOperations.MatrixTz4(400) * MathOperations.MatrixRy4(q[5]) *
-            MathOperations.MatrixRz4(q[6]) * MathOperations.MatrixTz4(130) * T.Transpose();
+            MathOperations.MatrixRz4(q[6]) * MathOperations.MatrixTz4(130) * Tinv;
 
         Matrix<float> T4 = MathOperations.MatrixRz4(q[0]) * MathOperations.MatrixTz4(360) * MathOperations.MatrixRy4(q[1]) *
             MathOperations.MatrixRz4(q[2]) * MathOperations.MatrixTz4(420) * MathOperations.Rdy(-q[3]) *
             MathOperations.MatrixRz4(q[4]) * MathOperations.MatrixTz4(400) * MathOperations.MatrixRy4(q[5]) *
-            MathOperations.MatrixRz4(q[6]) * MathOperations.MatrixTz4(130) * T.Transpose();
+            MathOperations.MatrixRz4(q[6]) * MathOperations.MatrixTz4(130) * Tinv;
 
         Matrix<float> T5 = MathOperations.MatrixRz4(q[0]) * MathOperations.MatrixTz4(360) * MathOperations.MatrixRy4(q[1]) *
             MathOperations.MatrixRz4(q[2]) * MathOperations.MatrixTz4(420) * MathOperations.MatrixRy4(-q[3]) *
             MathOperations.Rdz(q[4]) * MathOperations.MatrixTz4(400) * MathOperations.MatrixRy4(q[5]) *
-            MathOperations.MatrixRz4(q[6]) * MathOperations.MatrixTz4(130) * T.Transpose();
+            MathOperations.MatrixRz4(q[6]) * MathOperations.MatrixTz4(130) * Tinv;
 
         Matrix<float> T6 = MathOperations.MatrixRz4(q[0]) * MathOperations.MatrixTz4(360) * MathOperations.MatrixRy4(q[1]) *
             MathOperations.MatrixRz4(q[2]) * MathOperations.MatrixTz4(420) * MathOperations.MatrixRy4(-q[3]) *
             MathOperations.MatrixRz4(q[4]) * MathOperations.MatrixTz4(400) * MathOperations.Rdy(q[5]) *
-            MathOperations.MatrixRz4(q[6]) * MathOperations.MatrixTz4(130) * T.Transpose();
+            MathOperations.MatrixRz4(q[6]) * MathOperations.MatrixTz4(130) * Tinv;
 
         Matrix<float> T7 = MathOperations.MatrixRz4(q[0]) * MathOperations.MatrixTz4(360) * MathOperations.MatrixRy4(q[1]) *
             MathOperations.MatrixRz4(q[2]) * MathOperations.MatrixTz4(420) * MathOperations.MatrixRy4(-q[3]) *
             MathOperations.MatrixRz4(q[4]) * MathOperations.MatrixTz4(400) * MathOperations.MatrixRy4(q[5]) *
-            MathOperations.Rdz(q[6]) * MathOperations.MatrixTz4(130) * T.Transpose();
+            MathOperations.Rdz(q[6]) * MathOperations.MatrixTz4(130) * Tinv;
 
         
         return Matrix<float>.Build.DenseOfArray( new float[,]
@@ -467,4 +478,8 @@ public class IiwaControl : RobotControll
             { T1[1,0], T2[1,0], T3[1,0], T4[1,0], T5[1,0], T6[1,0], T7[1,0]},
         });
     }
+
+
+   
+
 }
