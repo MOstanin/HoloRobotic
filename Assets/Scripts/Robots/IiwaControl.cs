@@ -25,12 +25,13 @@ public class IiwaControl : RobotControll
     public override float[] InversKin(Matrix<float> Tgoal, float[] q0)
     {
         //float[] q2 = ReadState();
-        q = new float[] { 0, 20 * Mathf.PI / 180, 0, -70 * Mathf.PI / 180, 0, 0, 0 };
+        //q = new float[] { 0, 20 * Mathf.PI / 180, 0, 70 * Mathf.PI / 180, 0, 0, 0 };
+        q = new float[] { 0, 0, 0, 0, 0, 0, 0 };
         //Tgoal[1, 3] = -Tgoal[1, 3];
         //Tgoal[0, 3] = -Tgoal[0, 3];
         //Tgoal = ForwardKin(q2);
-        
-        Tgoal = Tgoal * MathOperations.MatrixRy4( Mathf.PI / 2) ;
+
+        Tgoal = Tgoal * MathOperations.MatrixRy4( Mathf.PI / 2) * MathOperations.MatrixRz4(Mathf.PI / 2);
         Debug.Log(Tgoal.ToString());
         Matrix<float> end_effector_matrix = ForwardKin(q);
         Debug.Log(end_effector_matrix.ToString());
@@ -56,14 +57,14 @@ public class IiwaControl : RobotControll
 
                 for (int i = 0; i < 7; i++)
                 {
-                    q[i] = (i!=3)? (q[i] + del_q2[i] * 0.05f) : (q[i] - del_q2[i] * 0.05f);
-                    //q[i] = q[i] + del_q2[i] * 0.02f;
+                    //q[i] = (i!=3)? (q[i] + del_q2[i] * 0.05f) : (q[i] - del_q2[i] * 0.05f);
+                    q[i] = q[i] + del_q2[i] * 0.05f;
                 }
             }
             
             if (c > 500)
             {
-                return new float[] { 0, 20*Mathf.PI/180, 0, -70 * Mathf.PI / 180, 0, 0, 0 };
+                return new float[] { 0, 20*Mathf.PI/180, 0, 70 * Mathf.PI / 180, 0, 0, 0 };
 
             }
             else
@@ -84,8 +85,8 @@ public class IiwaControl : RobotControll
 
         float k = 1;
         float[] speed = new float[] { 85 * k, 85 * k, 100 * k, 75 * k, 130 * k, 135 * k, 135 * k };
-        float[] Qmax = new float[] { 170, 130, 170, 130, 170, 130, 175 };
-        float[] Qmin = new float[] { -170, -130, -170, -130, -170, -130, -175 };
+        float[] Qmax = new float[] { 170, 130, 170, 130, 170, 130, 360 };
+        float[] Qmin = new float[] { -170, -130, -170, -130, -170, -130, -360 };
 
 
         for (int i = 0; i < 7; i++)
@@ -269,7 +270,7 @@ public class IiwaControl : RobotControll
         qr[0] = - link1.transform.localRotation.eulerAngles.y * Mathf.PI / 180;
         qr[1] = link2.transform.localRotation.eulerAngles.z * Mathf.PI / 180;
         qr[2] = - link3.transform.localRotation.eulerAngles.y * Mathf.PI / 180;
-        qr[3] = - link4.transform.localRotation.eulerAngles.z * Mathf.PI / 180;
+        qr[3] =  link4.transform.localRotation.eulerAngles.z * Mathf.PI / 180;
         qr[4] = - link5.transform.localRotation.eulerAngles.y * Mathf.PI / 180;
         qr[5] = link6.transform.localRotation.eulerAngles.z * Mathf.PI / 180;
         qr[6] = - link7.transform.localRotation.eulerAngles.y * Mathf.PI / 180;
@@ -296,7 +297,7 @@ public class IiwaControl : RobotControll
         link1.transform.localRotation = Quaternion.Euler(new Vector3(0, - q[0] * 180 / Mathf.PI, 0));
         link2.transform.localRotation = Quaternion.Euler(new Vector3(0, 0, q[1] * 180 / Mathf.PI));
         link3.transform.localRotation = Quaternion.Euler(new Vector3(0, - q[2] * 180 / Mathf.PI, 0));
-        link4.transform.localRotation = Quaternion.Euler(new Vector3(0, 0, - q[3] * 180 / Mathf.PI));
+        link4.transform.localRotation = Quaternion.Euler(new Vector3(0, 0,  q[3] * 180 / Mathf.PI));
         link5.transform.localRotation = Quaternion.Euler(new Vector3(0, - q[4] * 180 / Mathf.PI, 0));
         link6.transform.localRotation = Quaternion.Euler(new Vector3(0, 0, q[5] * 180 / Mathf.PI));
         link7.transform.localRotation = Quaternion.Euler(new Vector3(0, - q[6] * 180 / Mathf.PI, 0));
@@ -410,7 +411,7 @@ public class IiwaControl : RobotControll
     public override  Matrix<float> ForwardKin(float[] q)
     {
         Matrix<float> T = MathOperations.MatrixRz4(q[0]) * MathOperations.MatrixTz4(360) * MathOperations.MatrixRy4(q[1]) *
-            MathOperations.MatrixRz4(q[2]) * MathOperations.MatrixTz4(420) * MathOperations.MatrixRy4(-q[3]) *
+            MathOperations.MatrixRz4(q[2]) * MathOperations.MatrixTz4(420) * MathOperations.MatrixRy4(q[3]) *
             MathOperations.MatrixRz4(q[4]) * MathOperations.MatrixTz4(400) * MathOperations.MatrixRy4(q[5]) *
             MathOperations.MatrixRz4(q[6]) * MathOperations.MatrixTz4(130);
 
@@ -433,37 +434,37 @@ public class IiwaControl : RobotControll
 
 
         Matrix<float> T1 = MathOperations.Rdz(q[0]) * MathOperations.MatrixTz4(360) * MathOperations.MatrixRy4(q[1]) *
-            MathOperations.MatrixRz4(q[2]) * MathOperations.MatrixTz4(420) * MathOperations.MatrixRy4(-q[3]) *
+            MathOperations.MatrixRz4(q[2]) * MathOperations.MatrixTz4(420) * MathOperations.MatrixRy4(q[3]) *
             MathOperations.MatrixRz4(q[4]) * MathOperations.MatrixTz4(400) * MathOperations.MatrixRy4(q[5]) *
             MathOperations.MatrixRz4(q[6]) * MathOperations.MatrixTz4(130) * Tinv;
 
         Matrix<float> T2 = MathOperations.MatrixRz4(q[0]) * MathOperations.MatrixTz4(360) * MathOperations.Rdy(q[1]) *
-            MathOperations.MatrixRz4(q[2]) * MathOperations.MatrixTz4(420) * MathOperations.MatrixRy4(-q[3]) *
+            MathOperations.MatrixRz4(q[2]) * MathOperations.MatrixTz4(420) * MathOperations.MatrixRy4(q[3]) *
             MathOperations.MatrixRz4(q[4]) * MathOperations.MatrixTz4(400) * MathOperations.MatrixRy4(q[5]) *
             MathOperations.MatrixRz4(q[6]) * MathOperations.MatrixTz4(130) * Tinv;
 
         Matrix<float> T3 = MathOperations.MatrixRz4(q[0]) * MathOperations.MatrixTz4(360) * MathOperations.MatrixRy4(q[1]) *
-            MathOperations.Rdz(q[2]) * MathOperations.MatrixTz4(420) * MathOperations.MatrixRy4(-q[3]) *
+            MathOperations.Rdz(q[2]) * MathOperations.MatrixTz4(420) * MathOperations.MatrixRy4(q[3]) *
             MathOperations.MatrixRz4(q[4]) * MathOperations.MatrixTz4(400) * MathOperations.MatrixRy4(q[5]) *
             MathOperations.MatrixRz4(q[6]) * MathOperations.MatrixTz4(130) * Tinv;
 
         Matrix<float> T4 = MathOperations.MatrixRz4(q[0]) * MathOperations.MatrixTz4(360) * MathOperations.MatrixRy4(q[1]) *
-            MathOperations.MatrixRz4(q[2]) * MathOperations.MatrixTz4(420) * MathOperations.Rdy(-q[3]) *
+            MathOperations.MatrixRz4(q[2]) * MathOperations.MatrixTz4(420) * MathOperations.Rdy(q[3]) *
             MathOperations.MatrixRz4(q[4]) * MathOperations.MatrixTz4(400) * MathOperations.MatrixRy4(q[5]) *
             MathOperations.MatrixRz4(q[6]) * MathOperations.MatrixTz4(130) * Tinv;
 
         Matrix<float> T5 = MathOperations.MatrixRz4(q[0]) * MathOperations.MatrixTz4(360) * MathOperations.MatrixRy4(q[1]) *
-            MathOperations.MatrixRz4(q[2]) * MathOperations.MatrixTz4(420) * MathOperations.MatrixRy4(-q[3]) *
+            MathOperations.MatrixRz4(q[2]) * MathOperations.MatrixTz4(420) * MathOperations.MatrixRy4(q[3]) *
             MathOperations.Rdz(q[4]) * MathOperations.MatrixTz4(400) * MathOperations.MatrixRy4(q[5]) *
             MathOperations.MatrixRz4(q[6]) * MathOperations.MatrixTz4(130) * Tinv;
 
         Matrix<float> T6 = MathOperations.MatrixRz4(q[0]) * MathOperations.MatrixTz4(360) * MathOperations.MatrixRy4(q[1]) *
-            MathOperations.MatrixRz4(q[2]) * MathOperations.MatrixTz4(420) * MathOperations.MatrixRy4(-q[3]) *
+            MathOperations.MatrixRz4(q[2]) * MathOperations.MatrixTz4(420) * MathOperations.MatrixRy4(q[3]) *
             MathOperations.MatrixRz4(q[4]) * MathOperations.MatrixTz4(400) * MathOperations.Rdy(q[5]) *
             MathOperations.MatrixRz4(q[6]) * MathOperations.MatrixTz4(130) * Tinv;
 
         Matrix<float> T7 = MathOperations.MatrixRz4(q[0]) * MathOperations.MatrixTz4(360) * MathOperations.MatrixRy4(q[1]) *
-            MathOperations.MatrixRz4(q[2]) * MathOperations.MatrixTz4(420) * MathOperations.MatrixRy4(-q[3]) *
+            MathOperations.MatrixRz4(q[2]) * MathOperations.MatrixTz4(420) * MathOperations.MatrixRy4(q[3]) *
             MathOperations.MatrixRz4(q[4]) * MathOperations.MatrixTz4(400) * MathOperations.MatrixRy4(q[5]) *
             MathOperations.Rdz(q[6]) * MathOperations.MatrixTz4(130) * Tinv;
 

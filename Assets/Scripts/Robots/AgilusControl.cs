@@ -154,13 +154,17 @@ public class AgilusControl : RobotControll{
             q4 = 0;
             q6 = Mathf.Atan2(T456[2, 1], T456[1, 1]);
         }
-
+        
         q = new float[] { q1, q2, q3, q4, q5 , q6 };
 
         foreach (float qc in q){
             if (float.IsNaN(qc)) { return new float[] { 0, 0, 0, 0, 0, 0 }; }
-        }
 
+        }
+        for (int i=0; i < 6; i++)
+        {
+            q[i] = MathOperations.AngleRound(q[i]); 
+        }
 
        // Debug.Log("Agilus IK:" + q.ToString());
         return q;

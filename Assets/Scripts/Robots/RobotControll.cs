@@ -12,7 +12,8 @@ public abstract class RobotControll : MonoBehaviour, IInputClickHandler, IRobot 
     public GameObject InfoTable;
     protected GameObject currentInfoTable;
 
-    private List<GameObject> Trajectory; 
+    private List<GameObject> Trajectory;
+    private List<float[]> Q_States;
 
     //q is goal state
     protected float[] q;
@@ -156,6 +157,7 @@ public abstract class RobotControll : MonoBehaviour, IInputClickHandler, IRobot 
                             goalOri.z = -(transform.eulerAngles.z - ballTransform.eulerAngles.z) * Mathf.PI / 180;
 
                             q = InversKin(goalPos, goalOri, q);
+                            Q_States.Add(q);
 
                         }
                         else
@@ -264,6 +266,16 @@ public abstract class RobotControll : MonoBehaviour, IInputClickHandler, IRobot 
             goalOri.z = -(transform.eulerAngles.z - ballTransform.eulerAngles.z) * Mathf.PI / 180;
 
             q = InversKin(goalPos, goalOri, q);
+            if (Q_States != null)
+            {
+                Q_States.Clear();
+                Q_States.Add(q);
+            }
+            else
+            {
+                Q_States = new List<float[]>();
+                Q_States.Add(q);
+            }
         }
     }
     
@@ -329,4 +341,8 @@ public abstract class RobotControll : MonoBehaviour, IInputClickHandler, IRobot 
         
     }
 
+    public List<float[]> GetQList()
+    {
+        return Q_States;
+    }
 }

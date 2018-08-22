@@ -265,4 +265,20 @@ public class AppManager : Singleton<AppManager> {
         }
 
     }
+
+    public string GetQ()
+    {
+        RobotControll robot = SelectedRobot.GetComponent<RobotControll>();
+        List<float[]> qList = robot.GetQList();
+        string s = "";
+        foreach (float[] q in qList)
+        {
+            for (int i = 0; i < q.Length; i++)
+            {
+                s = s + q[i]+" ";
+            }
+            s = s + "\n";
+        }
+        return s;
+    }
 }
