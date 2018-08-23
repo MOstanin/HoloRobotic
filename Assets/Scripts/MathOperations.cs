@@ -5,6 +5,11 @@ using MathNet.Numerics.LinearAlgebra;
 
 public class MathOperations {
 
+    public static float AngleRound(float q)
+    {
+
+        return Mathf.Atan2(Mathf.Sin(q), Mathf.Cos(q));
+    }
     public static Matrix<float> CalcMatrixRz(float s)
     {
         return Matrix<float>.Build.DenseOfArray(new float[,]
@@ -106,18 +111,6 @@ public class MathOperations {
 
     }
 
-    public static float AngleRound(float a)
-    {
-        if (a > Mathf.PI)
-        {
-            a = a - Mathf.PI * 2;
-        }
-        else if (a < -Mathf.PI)
-        {
-            a = a + Mathf.PI * 2;
-        }
-        return a;
-    }
 
     public static float[] CalcErorr(Matrix<float> goal, Matrix<float> end_effector)
     {

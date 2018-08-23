@@ -63,8 +63,12 @@ public class Trajectory
 
     public void Destroy()
     {
-        foreach (GameObject point in Points){
-            GameObject.Destroy(point);
+        if (Points!= null)
+        {
+            foreach (GameObject point in Points)
+            {
+                GameObject.Destroy(point);
+            }
         }
     }
 

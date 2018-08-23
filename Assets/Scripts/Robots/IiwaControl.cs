@@ -14,7 +14,12 @@ public class IiwaControl : RobotControll
     public GameObject link5;
     public GameObject link6;
     public GameObject link7;
-    
+
+    private void Awake()
+    {
+        q = new float[] { 0, 0, 0, 90 * Mathf.PI / 180, 0, 90 * Mathf.PI / 180, 0 };
+        SendState(q);
+    }
 
     public override float[] InversKin(Matrix<float> Tgoal)
     {
@@ -25,16 +30,16 @@ public class IiwaControl : RobotControll
     public override float[] InversKin(Matrix<float> Tgoal, float[] q0)
     {
         //float[] q2 = ReadState();
-        //q = new float[] { 0, 20 * Mathf.PI / 180, 0, 70 * Mathf.PI / 180, 0, 0, 0 };
-        q = new float[] { 0, 0, 0, 0, 0, 0, 0 };
+        //q = new float[] { 0, 0, 0, 90 * Mathf.PI / 180, 0, 90 * Mathf.PI / 180, 0 };
+        //q = new float[] { 0, 0, 0, 0, 0, 0, 0 };
         //Tgoal[1, 3] = -Tgoal[1, 3];
         //Tgoal[0, 3] = -Tgoal[0, 3];
         //Tgoal = ForwardKin(q2);
 
         Tgoal = Tgoal * MathOperations.MatrixRy4( Mathf.PI / 2) * MathOperations.MatrixRz4(Mathf.PI / 2);
-        Debug.Log(Tgoal.ToString());
+        //Debug.Log(Tgoal.ToString());
         Matrix<float> end_effector_matrix = ForwardKin(q);
-        Debug.Log(end_effector_matrix.ToString());
+        //Debug.Log(end_effector_matrix.ToString());
         float diff_r = 0;
         float diif_o = 0;
         int c = 0;
@@ -53,18 +58,18 @@ public class IiwaControl : RobotControll
 
             if (diff_r > 1 || diif_o > 0.1F)
             {
-                del_q2 = MoveSNS(q, error);
-
+                //del_q2 = MoveSNS(q, error);
+                del_q2 = MovePINV(q, error);
                 for (int i = 0; i < 7; i++)
                 {
                     //q[i] = (i!=3)? (q[i] + del_q2[i] * 0.05f) : (q[i] - del_q2[i] * 0.05f);
-                    q[i] = q[i] + del_q2[i] * 0.05f;
+                    q[i] = q[i] + del_q2[i] * 0.1f;
                 }
             }
             
-            if (c > 500)
+            if (c > 400)
             {
-                return new float[] { 0, 20*Mathf.PI/180, 0, 70 * Mathf.PI / 180, 0, 0, 0 };
+                return new float[] { 0, 20 * Mathf.PI / 180, 0, 70 * Mathf.PI / 180, 0, 0, 0 };
 
             }
             else
@@ -74,16 +79,52 @@ public class IiwaControl : RobotControll
 
         } while ((diff_r > 1 || diif_o > 0.1F));
 
-
-        //Debug.Log("IIWA IK:" + q.ToString());
+        for (int i = 0; i < 6; i++)
+        {
+            q[i] = MathOperations.AngleRound(q[i]);
+        }//Debug.Log("IIWA IK:" + q.ToString());
         return q;
 
+    }
+
+    private float[] MovePINV(float[] q_current, float[] error)
+    {
+        Matrix<float> jac = IIWAjacobian(q_current);
+
+        Vector<float> errorV = Vector<float>.Build.DenseOfArray(error);
+
+        Svd<float> svd = jac.Svd();
+        //float[] singularVal = new float[6];
+
+        Matrix<float> S = Matrix<float>.Build.DenseIdentity(7, 6);
+        for (int i = 0; i < 6; i++)
+        {
+            if (svd.S[i] != 0)
+            {
+                S[i, i] = svd.S[i] / (svd.S[i] * svd.S[i] + 1);
+            }
+            else
+            {
+                S[i, i] = 1000000000;
+            }
+        }
+
+        Matrix<float> jac3 = svd.VT.Transpose() * S * svd.U.Transpose();
+
+        Vector<float> qPINV = jac3 * errorV;
+
+        float[] qOut = new float[7];
+        for (int i = 0; i < 7; i++)
+        {
+            qOut[i] = qPINV[i];
+        }
+        return qOut;
     }
 
     private float[] MoveSNS(float[] q_current, float[] error)
     {
 
-        float k = 1;
+        float k = 1f;
         float[] speed = new float[] { 85 * k, 85 * k, 100 * k, 75 * k, 130 * k, 135 * k, 135 * k };
         float[] Qmax = new float[] { 170, 130, 170, 130, 170, 130, 360 };
         float[] Qmin = new float[] { -170, -130, -170, -130, -170, -130, -360 };
@@ -91,8 +132,8 @@ public class IiwaControl : RobotControll
 
         for (int i = 0; i < 7; i++)
         {
-            Qmax[i] = Mathf.Min((Qmax[i] * Mathf.PI / 180 - q_current[i]) / Time.deltaTime, speed[i] * Mathf.PI / 180);
-            Qmin[i] = Mathf.Max((Qmin[i] * Mathf.PI / 180 - q_current[i]) / Time.deltaTime, -speed[i] * Mathf.PI / 180);
+            Qmax[i] = Mathf.Min((Qmax[i] * Mathf.PI / 180 - q_current[i]) / 0.1f, speed[i] * Mathf.PI / 180);
+            Qmin[i] = Mathf.Max((Qmin[i] * Mathf.PI / 180 - q_current[i]) / 0.1f, -speed[i] * Mathf.PI / 180);
         }
 
         Matrix<float> W = Matrix<float>.Build.DenseDiagonal(7, 1);
@@ -105,16 +146,17 @@ public class IiwaControl : RobotControll
         bool lim_exceeded;
         float task_scale;
 
-        Vector<float> qSNS;
+        Vector<float> qSNS = Vector<float>.Build.DenseOfArray(new float[] { 0, 0, 0, 0, 0, 0, 0 });
         Matrix<float> jac = IIWAjacobian(q_current);
 
         Vector<float> errorSNS = Vector<float>.Build.DenseOfArray(error);
 
+        Matrix<float> JW = jac * W;
         do
         {
             lim_exceeded = false;
             
-            Matrix<float> JW = jac * W;
+            
             //Matrix<float> jac3 = JW.PseudoInverse();
             
             Svd<float> svd  = JW.Svd();
@@ -203,7 +245,7 @@ public class IiwaControl : RobotControll
                     task_scale = Mathf.Min(s_max, 1);
                 }
 
-                if (task_scale >= s2)
+                if (task_scale > s2)
                 {
                     s2 = task_scale;
                     W2 = W.Clone();
@@ -247,6 +289,7 @@ public class IiwaControl : RobotControll
                     Matrix<float> jac2 = svd2.VT.Transpose() * S2 * svd2.U.Transpose();
 
                     qSNS = qN + jac2 * (s * errorSNS - jac * qN);
+                    Debug.Log("qSNS error");
                 }
 
 
@@ -421,6 +464,7 @@ public class IiwaControl : RobotControll
 
     private Matrix<float> IIWAjacobian(float[] q)
     {
+        return IIWAjacobian2(q);
         Matrix<float> T = ForwardKin(q);
         //q[3] = -q[3];
 
@@ -480,7 +524,75 @@ public class IiwaControl : RobotControll
         });
     }
 
+    private Matrix<float> IIWAjacobian2(float[] q)
+    {
+        
+        float LINK23 = 420;
+        float LINK45 = 400;
+        float LINK67 = 126;
 
-   
+        // angles
+        float c0 = Mathf.Cos(q[0]), s0 = Mathf.Sin(q[0]);
+        float c1 = Mathf.Cos(q[1]), s1 = Mathf.Sin(q[1]);
+        float c2 = Mathf.Cos(q[2]), s2 = Mathf.Sin(q[2]);       
+        float c3 = Mathf.Cos(-q[3]), s3 = Mathf.Sin(-q[3]);
+        float c4 = Mathf.Cos(q[4]), s4 = Mathf.Sin(q[4]);       
+        float c5 = Mathf.Cos(q[5]), s5 = Mathf.Sin(q[5]);
+        float c6 = Mathf.Cos(q[6]), s6 = Mathf.Sin(q[6]);
+        // initialization
+        Matrix<float> m = Matrix<float>.Build.DenseOfArray(new float[6,7]);
+        // find common terms
+        float _grp0 = (c0 * s1 * s3 + (c0 * c1 * c2 - s0 * s2) * c3), _grp1 = (c0 * s1 * c3 - (c0 * c1 * c2 - s0 * s2) * s3);
+        float _grp2 = (c0 * c2 - s0 * c1 * s2), _grp3 = (s0 * s1 * s3 + (c0 * s2 + s0 * c1 * c2) * c3);
+        float _grp4 = (s0 * s1 * c3 - (c0 * s2 + s0 * c1 * c2) * s3), _grp5 = (c1 * s3 - s1 * c2 * c3);
+        float _grp6 = (s1 * s2 * s4 + _grp5 * c4) * s5, _grp7 = (s1 * c2 * s3 + c1 * c3);
+        float _grp8 = (-c0 * c1 * s2 - s0 * c2);
+        m[0, 0] = (-LINK67 * ((_grp2 * s4 + _grp3 * c4) * s5 + _grp4 * c5)) - LINK45 * _grp4 - LINK23 * s0 * s1;
+        m[0, 1] = c0 * (LINK67 * (_grp6 + _grp7 * c5) + LINK45 * _grp7 + LINK23 * c1);
+        m[0, 2] = s0 * s1 * (LINK67 * (_grp6 + _grp7 * c5) + LINK45 * _grp7 + LINK23 * c1) - c1 * (LINK67 * ((_grp2 * s4 + _grp3 * c4) * s5 + _grp4 * c5) + LINK45 * _grp4 + LINK23 * s0 * s1);
+        m[0, 3] = _grp2 * (LINK67 * (_grp6 + _grp7 * c5) + LINK45 * _grp7) - s1 * s2 * (LINK67 * ((_grp2 * s4 + _grp3 * c4) * s5 + _grp4 * c5) + LINK45 * _grp4);
+        m[0, 4] = ((-s1 * c2 * s3) - c1 * c3) * (LINK67 * ((_grp2 * s4 + _grp3 * c4) * s5 + _grp4 * c5) + LINK45 * _grp4) + _grp4 * (LINK67 * (_grp6 + _grp7 * c5) + LINK45 * _grp7);
+        m[0, 5] = LINK67 * (_grp5 * s4 - s1 * s2 * c4) * ((_grp2 * s4 + _grp3 * c4) * s5 + _grp4 * c5) + LINK67 * (_grp2 * c4 - _grp3 * s4) * (_grp6 + _grp7 * c5);
+        m[0, 6] = LINK67 * (_grp6 + _grp7 * c5) * ((_grp2 * s4 + _grp3 * c4) * s5 + _grp4 * c5) + LINK67 * ((-_grp6) - _grp7 * c5) * ((_grp2 * s4 + _grp3 * c4) * s5 + _grp4 * c5);
+        m[1, 0] = LINK67 * ((_grp8 * s4 + _grp0 * c4) * s5 + _grp1 * c5) + LINK45 * _grp1 + LINK23 * c0 * s1;
+        m[1, 1] = s0 * (LINK67 * (_grp6 + _grp7 * c5) + LINK45 * _grp7 + LINK23 * c1);
+        m[1, 2] = c1 * (LINK67 * ((_grp8 * s4 + _grp0 * c4) * s5 + _grp1 * c5) + LINK45 * _grp1 + LINK23 * c0 * s1) - c0 * s1 * (LINK67 * (_grp6 + _grp7 * c5) + LINK45 * _grp7 + LINK23 * c1);
+        m[1, 3] = s1 * s2 * (LINK67 * ((_grp8 * s4 + _grp0 * c4) * s5 + _grp1 * c5) + LINK45 * _grp1) + (c0 * c1 * s2 + s0 * c2) * (LINK67 * (_grp6 + _grp7 * c5) + LINK45 * _grp7);
+        m[1, 4] = _grp7 * (LINK67 * ((_grp8 * s4 + _grp0 * c4) * s5 + _grp1 * c5) + LINK45 * _grp1) + ((c0 * c1 * c2 - s0 * s2) * s3 - c0 * s1 * c3) * (LINK67 * (_grp6 + _grp7 * c5) + LINK45 * _grp7);
+        m[1, 5] = LINK67 * (s1 * s2 * c4 - _grp5 * s4) * ((_grp8 * s4 + _grp0 * c4) * s5 + _grp1 * c5) + LINK67 * (_grp0 * s4 - _grp8 * c4) * (_grp6 + _grp7 * c5);
+        m[1, 6] = LINK67 * (_grp6 + _grp7 * c5) * ((_grp8 * s4 + _grp0 * c4) * s5 + _grp1 * c5) + LINK67 * (_grp6 + _grp7 * c5) * ((-(_grp8 * s4 + _grp0 * c4) * s5) - _grp1 * c5);
+        m[2, 0] = 0.0f;
+        m[2, 1] = (-s0 * (LINK67 * ((_grp2 * s4 + _grp3 * c4) * s5 + _grp4 * c5) + LINK45 * _grp4 + LINK23 * s0 * s1)) - c0 * (LINK67 * ((_grp8 * s4 + _grp0 * c4) * s5 + _grp1 * c5) + LINK45 * _grp1 + LINK23 * c0 * s1);
+        m[2, 2] = c0 * s1 * (LINK67 * ((_grp2 * s4 + _grp3 * c4) * s5 + _grp4 * c5) + LINK45 * _grp4 + LINK23 * s0 * s1) - s0 * s1 * (LINK67 * ((_grp8 * s4 + _grp0 * c4) * s5 + _grp1 * c5) + LINK45 * _grp1 + LINK23 * c0 * s1);
+        m[2, 3] = _grp8 * (LINK67 * ((_grp2 * s4 + _grp3 * c4) * s5 + _grp4 * c5) + LINK45 * _grp4) + (s0 * c1 * s2 - c0 * c2) * (LINK67 * ((_grp8 * s4 + _grp0 * c4) * s5 + _grp1 * c5) + LINK45 * _grp1);
+        m[2, 4] = _grp1 * (LINK67 * ((_grp2 * s4 + _grp3 * c4) * s5 + _grp4 * c5) + LINK45 * _grp4) + ((c0 * s2 + s0 * c1 * c2) * s3 - s0 * s1 * c3) * (LINK67 * ((_grp8 * s4 + _grp0 * c4) * s5 + _grp1 * c5) + LINK45 * _grp1);
+        m[2, 5] = LINK67 * (_grp8 * c4 - _grp0 * s4) * ((_grp2 * s4 + _grp3 * c4) * s5 + _grp4 * c5) + LINK67 * (_grp3 * s4 - _grp2 * c4) * ((_grp8 * s4 + _grp0 * c4) * s5 + _grp1 * c5);
+        m[2, 6] = LINK67 * ((_grp8 * s4 + _grp0 * c4) * s5 + _grp1 * c5) * ((_grp2 * s4 + _grp3 * c4) * s5 + _grp4 * c5) + LINK67 * ((_grp8 * s4 + _grp0 * c4) * s5 + _grp1 * c5) * ((-(_grp2 * s4 + _grp3 * c4) * s5) - _grp4 * c5);
+        m[3, 0] = 0.0f;
+        m[3, 1] = -s0;
+        m[3, 2] = c0 * s1;
+        m[3, 3] = (-c0 * c1 * s2) - s0 * c2;
+        m[3, 4] = c0 * s1 * c3 - (c0 * c1 * c2 - s0 * s2) * s3;
+        m[3, 5] = _grp8 * c4 - _grp0 * s4;
+        m[3, 6] = (_grp8 * s4 + _grp0 * c4) * s5 + _grp1 * c5;
+        m[4, 0] = 0.0f;
+        m[4, 1] = c0;
+        m[4, 2] = s0 * s1;
+        m[4, 3] = c0 * c2 - s0 * c1 * s2;
+        m[4, 4] = s0 * s1 * c3 - (c0 * s2 + s0 * c1 * c2) * s3;
+        m[4, 5] = _grp2 * c4 - _grp3 * s4;
+        m[4, 6] = (_grp2 * s4 + _grp3 * c4) * s5 + _grp4 * c5;
+        m[5, 0] = 1.0f;
+        m[5, 1] = 0.0f;
+        m[5, 2] = c1;
+        m[5, 3] = s1 * s2;
+        m[5, 4] = s1 * c2 * s3 + c1 * c3;
+        m[5, 5] = s1 * s2 * c4 - _grp5 * s4;
+        m[5, 6] = _grp6 + _grp7 * c5;
+    
+        return m;
+    }
+
+
 
 }
