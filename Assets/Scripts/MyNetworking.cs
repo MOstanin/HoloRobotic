@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 
 public class MyNetworking : Singleton<MyNetworking>
 {
+    /*
     [SerializeField]
     String host = "10.240.20.232";
 
@@ -217,13 +218,14 @@ public class MyNetworking : Singleton<MyNetworking>
             unknownStatus = null;
         }
     }
-
+    /*
     public void SendMessageToRobot()
     {
         message = GetQ();
     }
     string message;
-
+    */
+    /*
 #if UNITY_EDITOR
     public void ExchangePackets()
     {
@@ -330,10 +332,13 @@ public class MyNetworking : Singleton<MyNetworking>
     {
         StopExchange();
     }
-
+    /*
     private string GetQ()
     {
         return AppManager.Instance.GetQ();
     }
+    */
+
+    
 }
 

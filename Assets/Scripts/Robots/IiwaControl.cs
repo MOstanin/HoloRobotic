@@ -36,7 +36,7 @@ public class IiwaControl : RobotControll
         //Tgoal[0, 3] = -Tgoal[0, 3];
         //Tgoal = ForwardKin(q2);
 
-        Tgoal = Tgoal * MathOperations.MatrixRy4( Mathf.PI / 2) * MathOperations.MatrixRz4(Mathf.PI / 2);
+        Tgoal = Tgoal * MathOperations.MatrixRy4(Mathf.PI / 2) * MathOperations.MatrixRz4(Mathf.PI / 2);
         //Debug.Log(Tgoal.ToString());
         Matrix<float> end_effector_matrix = ForwardKin(q);
         //Debug.Log(end_effector_matrix.ToString());
@@ -58,18 +58,18 @@ public class IiwaControl : RobotControll
 
             if (diff_r > 1 || diif_o > 0.1F)
             {
-                //del_q2 = MoveSNS(q, error);
-                del_q2 = MovePINV(q, error);
+                del_q2 = MoveSNS(q, error);
+                //del_q2 = MovePINV(q, error);
                 for (int i = 0; i < 7; i++)
                 {
                     //q[i] = (i!=3)? (q[i] + del_q2[i] * 0.05f) : (q[i] - del_q2[i] * 0.05f);
-                    q[i] = q[i] + del_q2[i] * 0.1f;
+                    q[i] = q[i] + del_q2[i] * 0.02f;
                 }
             }
             
             if (c > 400)
             {
-                return new float[] { 0, 20 * Mathf.PI / 180, 0, 70 * Mathf.PI / 180, 0, 0, 0 };
+                return new float[] { 0, 0, 0, 90 * Mathf.PI / 180, 0, 90 * Mathf.PI / 180, 0 };
 
             }
             else
@@ -83,6 +83,7 @@ public class IiwaControl : RobotControll
         {
             q[i] = MathOperations.AngleRound(q[i]);
         }//Debug.Log("IIWA IK:" + q.ToString());
+
         return q;
 
     }
@@ -92,6 +93,7 @@ public class IiwaControl : RobotControll
         Matrix<float> jac = IIWAjacobian(q_current);
 
         Vector<float> errorV = Vector<float>.Build.DenseOfArray(error);
+
 
         Svd<float> svd = jac.Svd();
         //float[] singularVal = new float[6];
@@ -126,14 +128,14 @@ public class IiwaControl : RobotControll
 
         float k = 1f;
         float[] speed = new float[] { 85 * k, 85 * k, 100 * k, 75 * k, 130 * k, 135 * k, 135 * k };
-        float[] Qmax = new float[] { 170, 130, 170, 130, 170, 130, 360 };
-        float[] Qmin = new float[] { -170, -130, -170, -130, -170, -130, -360 };
+        float[] Qmax = new float[] { 170, 120, 170, 120, 170, 120, 170 };
+        float[] Qmin = new float[] { -170, -120, -170, -120, -170, -120, -170 };
 
 
         for (int i = 0; i < 7; i++)
         {
-            Qmax[i] = Mathf.Min((Qmax[i] * Mathf.PI / 180 - q_current[i]) / 0.1f, speed[i] * Mathf.PI / 180);
-            Qmin[i] = Mathf.Max((Qmin[i] * Mathf.PI / 180 - q_current[i]) / 0.1f, -speed[i] * Mathf.PI / 180);
+            Qmax[i] = Mathf.Min((Qmax[i] * Mathf.PI / 180 - q_current[i]) / 0.02f, speed[i] * Mathf.PI / 180);
+            Qmin[i] = Mathf.Max((Qmin[i] * Mathf.PI / 180 - q_current[i]) / 0.02f, -speed[i] * Mathf.PI / 180);
         }
 
         Matrix<float> W = Matrix<float>.Build.DenseDiagonal(7, 1);
@@ -167,7 +169,8 @@ public class IiwaControl : RobotControll
             {
                 if (svd.S[i] != 0)
                 {
-                    S[i, i] = 1 / (svd.S[i]);
+                    //S[i, i] = 1 / (svd.S[i]);
+                    S[i, i] = svd.S[i] / (svd.S[i] * svd.S[i] + 1);
                 }
                 else
                 {
@@ -192,7 +195,7 @@ public class IiwaControl : RobotControll
 
                     if (max_q < Mathf.Abs(qSNS[i]) && W[i, i] != 0)
                     {
-                            j = i;
+                        j = i;
                         max_q = Mathf.Abs(qSNS[i]);
                     }
                 }
@@ -278,7 +281,8 @@ public class IiwaControl : RobotControll
                     {
                         if (svd.S[i] != 0)
                         {
-                            S2[i, i] = 1 / (svd2.S[i]);
+                            //S2[i, i] = 1 / (svd2.S[i]);
+                            S[i, i] = svd.S[i] / (svd.S[i] * svd.S[i] + 1);
                         }
                         else
                         {
@@ -382,6 +386,11 @@ public class IiwaControl : RobotControll
         err[3] = (R[0, 0] * d2 + R[0, 1] * d1 + R[0, 2] * d3);
         err[4] = (R[1, 0] * d2 + R[1, 1] * d1 + R[1, 2] * d3);
         err[5] = (R[2, 0] * d2 + R[2, 1] * d1 + R[2, 2] * d3);
+
+        err[3] = MathOperations.AngleRound(err[3]);
+        err[4] = MathOperations.AngleRound(err[4]);
+        err[5] = MathOperations.AngleRound(err[5]);
+
 
         return err;
     }

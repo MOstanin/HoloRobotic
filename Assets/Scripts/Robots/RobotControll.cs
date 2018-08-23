@@ -157,7 +157,7 @@ public abstract class RobotControll : MonoBehaviour, IInputClickHandler, IRobot 
                             goalOri.z = -(transform.eulerAngles.z - ballTransform.eulerAngles.z) * Mathf.PI / 180;
 
                             q = InversKin(goalPos, goalOri, q);
-                            Q_States.Add(q);
+                            Q_States.Add((float[]) q.Clone());
 
                         }
                         else
@@ -269,12 +269,12 @@ public abstract class RobotControll : MonoBehaviour, IInputClickHandler, IRobot 
             if (Q_States != null)
             {
                 Q_States.Clear();
-                Q_States.Add(q);
+                Q_States.Add((float[])q.Clone());
             }
             else
             {
                 Q_States = new List<float[]>();
-                Q_States.Add(q);
+                Q_States.Add((float[])q.Clone());
             }
         }
     }
