@@ -801,7 +801,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 1000014001103040, guid: 1208d39814b498d47a41952deff3abd0, type: 2}
       propertyPath: m_Name
-      value: Send
+      value: Plan
       objectReference: {fileID: 0}
     - target: {fileID: 114000013833810220, guid: 1208d39814b498d47a41952deff3abd0,
         type: 2}
@@ -817,11 +817,11 @@ Prefab:
         type: 2}
       propertyPath: OnDownEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 1650151341}
+      objectReference: {fileID: 1650151345}
     - target: {fileID: 114000013833810220, guid: 1208d39814b498d47a41952deff3abd0,
         type: 2}
       propertyPath: OnDownEvent.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: StartSendTrajectory
+      value: PublishTrajectory
       objectReference: {fileID: 0}
     - target: {fileID: 114000013833810220, guid: 1208d39814b498d47a41952deff3abd0,
         type: 2}
@@ -831,7 +831,7 @@ Prefab:
     - target: {fileID: 114374334392891108, guid: 1208d39814b498d47a41952deff3abd0,
         type: 2}
       propertyPath: Default
-      value: Send
+      value: Plan
       objectReference: {fileID: 0}
     - target: {fileID: 114000013833810220, guid: 1208d39814b498d47a41952deff3abd0,
         type: 2}
@@ -3522,6 +3522,8 @@ GameObject:
   - component: {fileID: 1650151343}
   - component: {fileID: 1650151342}
   - component: {fileID: 1650151341}
+  - component: {fileID: 1650151344}
+  - component: {fileID: 1650151345}
   m_Layer: 0
   m_Name: ROSmanager
   m_TagString: Untagged
@@ -3555,7 +3557,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   timeout: 10
   Protocol: 0
-  RosBridgeServerUrl: ws://160.69.69.100:9090
+  RosBridgeServerUrl: ws://160.69.69.87:9090
 --- !u!4 &1650151343
 Transform:
   m_ObjectHideFlags: 0
@@ -3570,6 +3572,31 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1650151344
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1650151340}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9512422ff2cb9c74f951802152f8eaa0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Topic: /joint_trajectory
+  TimeStep: 1
+--- !u!114 &1650151345
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1650151340}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b60dfea37614a84e8177b0ac258f945, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Topic: /cartezian_trajectory
 --- !u!1001 &1671203574
 Prefab:
   m_ObjectHideFlags: 0
