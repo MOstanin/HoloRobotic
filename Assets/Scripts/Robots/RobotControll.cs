@@ -27,6 +27,7 @@ public abstract class RobotControll : MonoBehaviour, IInputClickHandler, IRobot 
     State state;
 
     private float speed = 0.3f;
+    private float[][] JointTrajectory;
 
     public void OnInputClicked(InputClickedEventData eventData)
     {
@@ -146,19 +147,22 @@ public abstract class RobotControll : MonoBehaviour, IInputClickHandler, IRobot 
                     {
                         PointNum = PointNum + 1;
 
-                        if (PointNum < Trajectory.Count)
+                        if (PointNum < JointTrajectory.Length)
                         {
 
-
+                            /*
                             Transform ballTransform = Trajectory[PointNum].transform;
                             goalPos = transform.InverseTransformPoint(ballTransform.position) * 1000;
                             goalOri.x = -(transform.eulerAngles.x - ballTransform.eulerAngles.x) * Mathf.PI / 180;
                             goalOri.y = -(transform.eulerAngles.y - ballTransform.eulerAngles.y) * Mathf.PI / 180;
                             goalOri.z = -(transform.eulerAngles.z - ballTransform.eulerAngles.z) * Mathf.PI / 180;
-
+                            
                             q = InversKin(goalPos, goalOri, q);
+                            */
+                            q = JointTrajectory[PointNum];
                             Q_States.Add((float[]) q.Clone());
-
+                            
+                            
                         }
                         else
                         {
@@ -252,13 +256,17 @@ public abstract class RobotControll : MonoBehaviour, IInputClickHandler, IRobot 
 
     public void StartMoving()
     {
-        Trajectory = TrajectoryData.Instance.GetTrajectory();
+        //Trajectory = TrajectoryData.Instance.GetTrajectory();
 
-        if (Trajectory != null)
+        JointTrajectory = TrajectoryData.Instance.GetJointTrajectory();
+
+        if (JointTrajectory != null)
         {
             PointNum = 0;
             state = State.MoveTrajectory;
 
+            q = JointTrajectory[PointNum];
+            /*
             Transform ballTransform = Trajectory[PointNum].transform;
             goalPos = transform.InverseTransformPoint(ballTransform.position) * 1000;
             goalOri.x = -(transform.eulerAngles.x - ballTransform.eulerAngles.x) * Mathf.PI / 180;
@@ -266,6 +274,7 @@ public abstract class RobotControll : MonoBehaviour, IInputClickHandler, IRobot 
             goalOri.z = -(transform.eulerAngles.z - ballTransform.eulerAngles.z) * Mathf.PI / 180;
 
             q = InversKin(goalPos, goalOri, q);
+            */
             if (Q_States != null)
             {
                 Q_States.Clear();
@@ -276,6 +285,7 @@ public abstract class RobotControll : MonoBehaviour, IInputClickHandler, IRobot 
                 Q_States = new List<float[]>();
                 Q_States.Add((float[])q.Clone());
             }
+            
         }
     }
     

@@ -341,10 +341,11 @@ public class IiwaControl : RobotControll
 
     public override void SendState(float[] q)
     {
+        // joint 4 was changed for ROS 
         link1.transform.localRotation = Quaternion.Euler(new Vector3(0, - q[0] * 180 / Mathf.PI, 0));
         link2.transform.localRotation = Quaternion.Euler(new Vector3(0, 0, q[1] * 180 / Mathf.PI));
         link3.transform.localRotation = Quaternion.Euler(new Vector3(0, - q[2] * 180 / Mathf.PI, 0));
-        link4.transform.localRotation = Quaternion.Euler(new Vector3(0, 0,  q[3] * 180 / Mathf.PI));
+        link4.transform.localRotation = Quaternion.Euler(new Vector3(0, 0,  -q[3] * 180 / Mathf.PI));
         link5.transform.localRotation = Quaternion.Euler(new Vector3(0, - q[4] * 180 / Mathf.PI, 0));
         link6.transform.localRotation = Quaternion.Euler(new Vector3(0, 0, q[5] * 180 / Mathf.PI));
         link7.transform.localRotation = Quaternion.Euler(new Vector3(0, - q[6] * 180 / Mathf.PI, 0));

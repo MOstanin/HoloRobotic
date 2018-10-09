@@ -292,4 +292,10 @@ public class TrajectoryData : Singleton<TrajectoryData>
     {
         trajectory.DeleteSegments(ball1, ball2);
     }
+
+    public float[][] GetJointTrajectory()
+    {
+        return GameObject.Find("ROSmanager").GetComponent<TrajectoryReceiver>().GetJointTrajectory();
+    }
+
 }
